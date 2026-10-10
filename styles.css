@@ -1,5 +1,5 @@
 /* =====================================================================
-   The Invisible Context — styles
+   The Invisible Context styles
    ===================================================================== */
 
 :root {
@@ -321,7 +321,7 @@ button.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); bor
 .closing { font-family: var(--display); font-size: 1.15rem; margin-top: 16px; line-height: 1.45; }
 
 .det-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.det { padding: 8px 14px; border-radius: 10px; background: var(--surface); border: 1px dashed var(--line-2); font-size: .92rem; cursor: pointer; }
+.det { padding: 8px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line-2); font-size: .92rem; }
 .det.fog { filter: blur(4px); opacity: .45; }
 .det.fog.clear { border-style: solid; filter: none; opacity: 1; }
 

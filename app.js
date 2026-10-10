@@ -1,5 +1,5 @@
 /* =====================================================================
-   The Invisible Context — app (hash router + views + Steering Wheel)
+   The Invisible Context: app (hash router + views + Steering Wheel)
    ===================================================================== */
 (function () {
   "use strict";
@@ -39,7 +39,7 @@
   };
 
   /* ================================================================
-     ODH Steering Wheel (SVG) — redrawn after Benis et al. 2021, Fig. 1:
+     ODH Steering Wheel (SVG), redrawn after Benis et al. 2021, Fig. 1:
      red core, yellow keys ring, blue perspectives ring (3 sectors),
      red dotted technology ring, green dimensions ring (5 sectors).
      The archetype markers sit on the technology ring.
@@ -278,7 +278,7 @@
       return `<div class="rrow" data-i="${i}">
         <button class="rrow-btn" aria-expanded="false" aria-controls="hid-${i}">
           <span class="field">${esc(r.field)}</span>
-          <span class="peek" aria-hidden="true">${eyeIcon()}<span class="peek-t">What's missing?</span></span>
+          <span class="peek" aria-hidden="true">${eyeIcon()}<span class="peek-t">Show missing context</span></span>
           <span class="shown">${esc(r.shown)}</span>
         </button>
         <div class="hidden" id="hid-${i}"><div>
@@ -302,12 +302,12 @@
     <section class="hero"><div class="wrap hero-grid">
       <div>
         <span class="eyebrow">EFMI LEAD 2026 · Sub-Group 1 · Context Invisibility Map</span>
-        <h1>The decision was right.<br><em>The picture was not.</em></h1>
-        <p class="lede">${gloss("When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place? This map shows the kinds of context that health information systems systematically fail to see — and who pays for it.")}</p>
-        <p class="lede" style="font-size:1rem">Open the patient record on the right. Every field looks fine. Tap each one to see what the system never knew.</p>
+        <h1>Health context that information systems do not capture</h1>
+        <p class="lede">${gloss("When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place? This map, produced by Sub-Group 1 of the EFMI LEAD 2026 Bootcamp, describes which contextual determinants of health are systematically missing from BMHI systems, why they remain missing, and who is affected.")}</p>
+        <p class="lede" style="font-size:1rem">The example record on the right shows a discharge decision. Select each field to see the relevant information that the record does not contain.</p>
         <div class="btn-row">
           <a class="btn" href="#/map">Explore the map →</a>
-          <a class="btn ghost" href="#/layers">Why does it stay hidden?</a>
+          <a class="btn ghost" href="#/layers">The five layers of invisibility</a>
         </div>
       </div>
       <div class="card record" id="record">
@@ -315,38 +315,38 @@
         <div class="record-decision"><span class="ok" aria-hidden="true">✓</span>${esc(st.decision)}</div>
         ${rows}
         <div class="record-foot">
-          <span class="small muted" id="revealCount">0 of ${st.rows.length} hidden contexts revealed</span>
-          <button class="btn ghost" id="revealAll" style="padding:8px 16px">Reveal all</button>
+          <span class="small muted" id="revealCount">0 of ${st.rows.length} items shown</span>
+          <button class="btn ghost" id="revealAll" style="padding:8px 16px">Show all</button>
         </div>
         <div class="moral fog" id="moral">${esc(st.moral)}</div>
-        <p class="illustrative">Illustrative composite built from the decision failures described in the Context Invisibility Map v0.2. Not a real patient.</p>
+        <p class="illustrative">Illustrative example combining decision failures described in the Context Invisibility Map v0.2. It does not describe a real patient.</p>
       </div>
     </div></section>
 
     <section class="section"><div class="wrap">
-      <span class="eyebrow">Not one problem, but five</span>
-      <h2>Five ways context disappears</h2>
-      <p class="lede">A determinant that was never recorded, one recorded in a form no other system can read, one with no field of the right shape, one locked inside another sector's database, and one that no indicator measures — these are five different failures. Lumping them together is part of why they persist.${cite([1, 3])}</p>
+      <span class="eyebrow">Five archetypes</span>
+      <h2>Five recurring patterns of missing context</h2>
+      <p class="lede">The map distinguishes five mechanisms: a determinant that is not recorded; one recorded in a form other systems cannot interpret; one for which no suitable structured field exists; one held in another sector's system; and one that no outcome indicator measures. Each requires a different response, usually from a different actor.${cite([1, 3])}</p>
       <div class="arch-grid" style="margin-top:28px">${cards}</div>
     </div></section>
 
     <section class="section"><div class="wrap">
-      <span class="eyebrow">Clinicians know. The record doesn't.</span>
-      <h2>It is not a lack of awareness</h2>
-      <p class="lede">In a survey of 201 providers, even those who considered these factors <em>clinically vital</em> rarely documented them consistently.${cite(6)}</p>
+      <span class="eyebrow">Documentation evidence</span>
+      <h2>How often social and environmental determinants are documented</h2>
+      <p class="lede">In a survey of 201 providers, consistent documentation was low even among providers who considered these determinants clinically vital.${cite(6)}</p>
       <div class="numbers" style="margin-top:24px">
-        ${[["18.2%", "document housing instability"], ["16.4%", "document food insecurity"], ["22.7%", "document transport access"], ["<5%", "document any environmental exposure (except outbreaks)"]]
+        ${[["18.2%", "document housing instability consistently"], ["16.4%", "document food insecurity consistently"], ["22.7%", "document transport access consistently"], ["<5%", "document any environmental determinant consistently (excluding outbreaks)"]]
           .map(([v, l]) => `<div class="card stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("")}
       </div>
-      <p class="muted small" style="margin-top:14px">The one social determinant with a long-established structured field — smoking status — is documented consistently by a substantial majority. The gap comes from the shape of the record, not from the people using it.${cite(6)}</p>
+      <p class="muted small" style="margin-top:14px">Smoking status, the only social determinant with a long-established structured EHR field, is documented consistently by a substantial majority of providers. This suggests that the gap reflects the structure of the record more than clinical awareness.${cite(6)}</p>
     </div></section>
 
     <section class="section"><div class="wrap split">
       <div>
         <span class="eyebrow">One Digital Health</span>
-        <h2>An interface problem</h2>
-        <p class="lede">${gloss("Through the lens of ODH, invisible context is a failure of connection across a health ecosystem — between people, communities, animals and environments — not just a gap in one hospital system. The information often exists somewhere. It just never becomes visible where the decision is made.")}${cite(2)}</p>
-        <div class="btn-row"><a class="btn" href="#/map">See it on the Steering Wheel →</a></div>
+        <h2>Invisibility as a connection problem</h2>
+        <p class="lede">${gloss("In the One Digital Health (ODH) framework, missing context is understood as a failure of connection between parts of the health ecosystem (people, communities, animals, environments and institutions) rather than as a gap in a single system. Relevant information often exists elsewhere but does not reach the point where the decision is made.")}${cite(2)}</p>
+        <div class="btn-row"><a class="btn" href="#/map">View the ODH Steering Wheel →</a></div>
       </div>
       <a href="#/map" aria-label="Open the interactive map" style="display:block">${wheelSVG({ mini: true })}</a>
     </div></section>`;
@@ -360,14 +360,14 @@
     const total = D.STORY.rows.length;
     const update = () => {
       const n = $$(".rrow.open").length;
-      $("#revealCount").textContent = `${n} of ${total} hidden contexts revealed`;
-      if (n === total) { $("#moral").classList.add("clear"); $("#revealAll").textContent = "Hide again"; }
-      else { $("#moral").classList.remove("clear"); $("#revealAll").textContent = "Reveal all"; }
+      $("#revealCount").textContent = `${n} of ${total} items shown`;
+      if (n === total) { $("#moral").classList.add("clear"); $("#revealAll").textContent = "Hide all"; }
+      else { $("#moral").classList.remove("clear"); $("#revealAll").textContent = "Show all"; }
     };
     const setRow = (row, open) => {
       row.classList.toggle("open", open);
       $(".rrow-btn", row).setAttribute("aria-expanded", String(open));
-      $(".peek-t", row).textContent = open ? "Revealed" : "What's missing?";
+      $(".peek-t", row).textContent = open ? "Shown" : "Show missing context";
       const fog = $(".hidden-inner", row);
       if (open) setTimeout(() => fog.classList.add("clear"), 120); else fog.classList.remove("clear");
     };
@@ -393,8 +393,8 @@
     return `
     <div class="wrap page-head">
       <span class="eyebrow">The Context Invisibility Map on the ODH Steering Wheel</span>
-      <h1>Where does context go missing?</h1>
-      <p class="lede">${gloss("The One Digital Health (ODH) Steering Wheel has two keys (yellow), three perspectives (blue) and five dimensions (green), held together by the technology ring (red dots). We placed the five archetypes of invisible context on that ring — each is a connection that fails. Tap anything on the wheel, follow the threads, or let the tour guide you.")}${cite(2)}</p>
+      <h1>The archetypes on the ODH Steering Wheel</h1>
+      <p class="lede">${gloss("The One Digital Health (ODH) Steering Wheel has two enabling keys (yellow), three perspectives (blue) and five dimensions (green), connected by the technology ring (red dots). In this map the five archetypes of invisible context are placed on the technology ring, because each describes a connection that does not work. Select an archetype to see the perspectives and dimensions it involves, or select a part of the wheel to see the related archetypes.")}${cite(2)}</p>
     </div>
     <div class="wrap map-layout">
       <div class="card wheel-box">
@@ -421,12 +421,12 @@
         <div class="arch-dock" id="dock">
           ${D.ARCHETYPES.map((a) => `<button data-pick="${a.n}" style="--c:${a.color}" aria-pressed="false" title="${esc(a.name)}">${num(a)}<span>${esc(a.plain)}</span></button>`).join("")}
         </div>
-        <p class="hint small muted">Tip: hover or tap any ring segment · use ← → keys to step through the archetypes</p>
+        <p class="hint small muted">Hover over or select any segment for a description. Use the ← → keys to move between archetypes.</p>
       </div>
       <div class="card panel">
         <div id="explorePanel">
           <div class="filters">
-            ${chipGroup("Filter by layer — why it's hidden", "layer", D.LAYERS)}
+            ${chipGroup("Filter by layer of invisibility", "layer", D.LAYERS)}
             ${chipGroup("Filter by cluster", "cluster", D.CLUSTERS)}
           </div>
           <div class="inspector" id="inspector" aria-live="polite"></div>
@@ -436,8 +436,8 @@
     </div>
     <div class="wrap" style="padding-bottom:56px">
       <div class="interface">
-        <h3>Invisibility is an interface problem</h3>
-        <p style="margin:0">The archetypes sit at different interfaces of the ODH ecosystem. The SDOH gap and patient narrative concentrate at the individual and population levels; environmental blindness links population and ecosystem; algorithmic data poverty sits between individuals, populations and Healthcare Industry 4.0; governance silos sit in the exchange between human, veterinary and environmental systems. Relevant information may exist in one part of the ecosystem and never become visible in another — and no single fix resolves every archetype.${cite(2)}</p>
+        <h3>Where the archetypes sit in the ecosystem</h3>
+        <p style="margin:0">The archetypes sit at different interfaces of the ODH ecosystem. The SDOH gap and patient narrative concentrate at the individual and population levels; environmental blindness links population and ecosystem; algorithmic data poverty sits between individuals, populations and Healthcare Industry 4.0; governance silos sit in the exchange between human, veterinary and environmental systems. Relevant information may exist in one part of the ecosystem without becoming available in another, and no single intervention addresses every archetype.${cite(2)}</p>
       </div>
       <p class="small muted" style="margin-top:14px">Wheel redrawn after Benis et al. 2021, Fig. 1.${cite(2)} The placement of archetypes on the technology ring, and the links between archetypes and the two keys, are this map's interpretation.</p>
     </div>`;
@@ -481,8 +481,8 @@
     }
     return `
       <span class="eyebrow" style="margin-bottom:4px">How to read the wheel</span>
-      <h3>Five archetypes, one ecosystem</h3>
-      <p>Each numbered marker is a recurring way that health decisions fail because context was absent. Tap one to see the threads linking it to its perspectives and dimensions. Together they cover all five layers of invisibility and all three ODH perspectives.</p>
+      <h3>The five archetypes</h3>
+      <p>Each numbered marker represents a recurring type of decision failure caused by missing context. Select one to show the lines connecting it to its perspectives and dimensions. Together the five archetypes cover all five layers of invisibility and all three ODH perspectives.</p>
       <div class="list">${D.ARCHETYPES.map((a) => `<button class="alink" data-pick="${a.n}">${num(a)}<span><span class="t">${esc(a.name)}</span><br><span class="s">${esc(a.plain)}</span></span></button>`).join("")}</div>`;
   }
 
@@ -560,7 +560,7 @@
       if (!h) return null;
       const k = h.dataset.kind, i = h.dataset.id;
       const n = matchArchetypes(k, i).length;
-      const count = k === "key" ? "" : `<br><span style="opacity:.75">${n} archetype${n === 1 ? "" : "s"} of invisible context</span>`;
+      const count = k === "key" ? "" : `<br><span style="opacity:.75">Related archetypes: ${n}</span>`;
       if (k === "core") return `<strong>${esc(D.CORE.name)}</strong><br>${esc(D.CORE.text)}`;
       if (k === "tech") return `<strong>${esc(D.TECH_RING.name)}</strong><br>Where perspectives and dimensions connect.${count}`;
       if (k === "key") { const x = D.KEYS.find((q) => q.id === i); return `<strong>Key · ${esc(x.name)}</strong><br>${esc(x.text)}`; }
@@ -632,30 +632,28 @@
         </section>
 
         <section>
-          <span class="eyebrow">Decisions that fail</span>
-          <h2>What goes wrong</h2>
+          <span class="eyebrow">Failing decisions</span>
+          <h2>Decisions affected</h2>
           ${a.failures.map((x) => `<div class="card story" style="border-left-color:${a.color}"><h3>${esc(x.title)}</h3><p>${esc(x.text)}${cite(x.ref)}</p></div>`).join("")}
           ${a.closing ? `<p class="closing">${esc(a.closing)}</p>` : ""}
         </section>
 
         <section>
           <span class="eyebrow">Priority hidden determinants</span>
-          <h2>What the system doesn't see</h2>
-          <p class="muted small">Tap to bring each one into view.</p>
-          <div class="det-grid" id="dets">${a.determinants.map((d) => `<button class="det fog" style="border-color:${a.color}">${esc(d)}</button>`).join("")}</div>
-          <div style="margin-top:12px"><button class="clear-btn" id="detAll">Reveal all</button></div>
+          <h2>Determinants not captured</h2>
+          <div class="det-grid" id="dets">${a.determinants.map((d) => `<span class="det" style="border-color:${a.color}">${esc(d)}</span>`).join("")}</div>
         </section>
 
         <section>
           <span class="eyebrow">Mechanism</span>
-          <h2>Why it stays invisible</h2>
+          <h2>Why it is not captured</h2>
           ${a.layers.map((lid) => { const l = layer(lid); return `<div class="card mech" style="border-left:4px solid ${l.color}">${layerBadge(lid)}<div class="q">${esc(l.question)}</div><p>${gloss(esc(a.mechanism[lid]))}${cite(a.refs)}</p></div>`; }).join("")}
           <p class="small muted"><a href="#/layers">Learn about all five layers →</a></p>
         </section>
 
         <section>
           <span class="eyebrow">Affected stakeholders</span>
-          <h2>Who carries the burden</h2>
+          <h2>Who is affected</h2>
           <div class="burden">
             ${groups.map(({ g, items }) => `<div class="card"><h4>${esc(g.name)}</h4><ul>${items.map((it) => `<li>${esc(it.name)}</li>`).join("")}</ul></div>`).join("")}
           </div>
@@ -673,7 +671,9 @@
           <a class="small" href="#/map" data-select="${a.n}">Open in the full map →</a>
         </div>
         <div class="numbers" style="grid-template-columns:1fr">
-          ${a.stats.map((s) => `<div class="card stat"><div class="v" style="color:${a.color}">${esc(s.value)}</div><div class="l">${esc(s.label)}${cite(s.ref)}</div>${s.note ? `<div class="n">${esc(s.note)}</div>` : ""}</div>`).join("")}
+          ${a.stats.map((s) => s.value == null
+            ? `<div class="card stat finding" style="border-left:4px solid ${a.color}"><div class="n" style="margin:0 0 4px">Finding</div><div class="l">${esc(s.label)}${cite(s.ref)}</div></div>`
+            : `<div class="card stat"><div class="v" style="color:${a.color}">${esc(s.value)}</div><div class="l">${esc(s.label)}${cite(s.ref)}</div>${s.note ? `<div class="n">${esc(s.note)}</div>` : ""}</div>`).join("")}
         </div>
         <div class="card side-card">
           <details class="evidence">
@@ -686,7 +686,7 @@
 
     <div class="wrap"><nav class="pager" aria-label="Archetype navigation">
       ${prev ? `<a href="#/archetype/${prev.n}"><span class="dir">← Previous</span><span class="t">${prev.n}. ${esc(prev.name)}</span></a>` : `<a href="#/map"><span class="dir">← Back to</span><span class="t">The Map</span></a>`}
-      ${next ? `<a class="next" href="#/archetype/${next.n}"><span class="dir">Next →</span><span class="t">${next.n}. ${esc(next.name)}</span></a>` : `<a class="next" href="#/layers"><span class="dir">Next →</span><span class="t">Why it stays hidden</span></a>`}
+      ${next ? `<a class="next" href="#/archetype/${next.n}"><span class="dir">Next →</span><span class="t">${next.n}. ${esc(next.name)}</span></a>` : `<a class="next" href="#/layers"><span class="dir">Next →</span><span class="t">Five layers of invisibility</span></a>`}
     </nav></div>`;
   }
 
@@ -694,8 +694,6 @@
     const a = byN(n);
     if (!a) return;
     paintWheel($("#miniHost svg"), { selected: a.n });
-    $$("#dets .det").forEach((d) => d.addEventListener("click", () => d.classList.toggle("clear")));
-    $("#detAll").addEventListener("click", () => $$("#dets .det").forEach((d, i) => setTimeout(() => d.classList.add("clear"), i * 110)));
     const link = $("[data-select]");
     if (link) link.addEventListener("click", () => { mapState.kind = mapState.id = null; mapState.mode = "explore"; mapState.selected = a.n; });
   }
@@ -725,40 +723,40 @@
       const w = c.length * 7.6 + 24;
       loop += `<g class="node" transform="translate(${f(x)} ${f(y)})"><rect x="${-w / 2}" y="-17" width="${w}" height="34" rx="17"/><text text-anchor="middle" dy="5">${esc(c)}</text></g>`;
     });
-    loop += `<text class="centre" text-anchor="middle" y="-6">invisibility</text><text class="centre" text-anchor="middle" y="16">reproduces itself</text></svg>`;
+    loop += `<text class="centre" text-anchor="middle" y="-6">self-reinforcing</text><text class="centre" text-anchor="middle" y="16">cycle</text></svg>`;
 
     // coverage grid
     const head = `<tr><th></th>${D.ARCHETYPES.map((a) => `<th><a href="#/archetype/${a.n}" style="text-decoration:none">${num(a)}</a></th>`).join("")}</tr>`;
     const lrows = D.LAYERS.map((l) => `<tr><th>${esc(l.name)}<span class="sub">${esc(l.question)}</span></th>${D.ARCHETYPES.map((a) => {
       const on = a.layers.includes(l.id);
-      return on ? `<td class="on" style="background:${l.color}"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)} — ${esc(l.name)}">●</a></td>` : `<td></td>`;
+      return on ? `<td class="on" style="background:${l.color}"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)}: ${esc(l.name)}">●</a></td>` : `<td></td>`;
     }).join("")}</tr>`).join("");
     const prows = D.PERSPECTIVES.map((p) => `<tr><th>${esc(p.name)}</th>${D.ARCHETYPES.map((a) => {
-      if (a.perspectives.includes(p.id)) return `<td class="on" style="background:${a.color}"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)} — ${esc(p.name)}">●</a></td>`;
-      if (a.spillover.includes(p.id)) return `<td class="spill"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)} — ${esc(p.name)} spillover">◌</a></td>`;
+      if (a.perspectives.includes(p.id)) return `<td class="on" style="background:${a.color}"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)}: ${esc(p.name)}">●</a></td>`;
+      if (a.spillover.includes(p.id)) return `<td class="spill"><a href="#/archetype/${a.n}" aria-label="${esc(a.name)}: ${esc(p.name)} (spillover)">◌</a></td>`;
       return `<td></td>`;
     }).join("")}</tr>`).join("");
 
     return `
     <div class="wrap page-head">
       <span class="eyebrow">The five layers of invisibility</span>
-      <h1>Why does context stay hidden?</h1>
-      <p class="lede">Each layer is a different reason something goes unseen — and the layer tells us <em>who</em> would be in a position to fix it. The layers can overlap, and the most stubborn cases combine several.</p>
+      <h1>Five layers of invisibility</h1>
+      <p class="lede">Each layer describes a different reason why a determinant is not available at the point of decision, and indicates which actor would be in a position to address it. Layers can overlap; the most persistent cases involve more than one.</p>
     </div>
     <section class="section" style="padding-top:24px"><div class="wrap layer-list">${layers}</div></section>
 
     <section class="section"><div class="wrap loop-wrap">
       ${loop}
       <div>
-        <span class="eyebrow">A self-reinforcing system</span>
-        <h2>What isn't seen, isn't asked for</h2>
-        <p class="lede">What is not captured cannot be standardised; what is not standardised cannot be reliably linked; what is not linked is hard to evaluate; and what is not evaluated is unlikely to become a priority. Invisible context is a property of the whole information ecosystem — not a list of isolated missing data points.</p>
+        <span class="eyebrow">A self-reinforcing cycle</span>
+        <h2>How the layers reinforce each other</h2>
+        <p class="lede">What is not captured cannot be standardised; what is not standardised cannot be reliably linked; what is not linked is hard to evaluate; and what is not evaluated is unlikely to become a priority. Invisible context is therefore a property of the information ecosystem as a whole, not a collection of isolated missing data points.</p>
       </div>
     </div></section>
 
     <section class="section"><div class="wrap">
       <span class="eyebrow">Mechanisms across the information lifecycle</span>
-      <h2>Four ways invisibility persists</h2>
+      <h2>Four mechanisms of persistence</h2>
       <div class="mech-grid" style="margin-top:20px">
         ${D.MECHANISMS.map((m) => `<div class="card"><h3>${esc(m.name)}</h3><p>${esc(m.text)}${cite(m.ref)}</p><div class="chips">${m.layers.map(layerBadge).join("")}</div></div>`).join("")}
       </div>
@@ -766,8 +764,8 @@
 
     <section class="section"><div class="wrap">
       <span class="eyebrow">Coverage</span>
-      <h2>Every layer, every perspective</h2>
-      <p class="lede">The five archetypes were selected so that, together, no layer and no ODH perspective is left out. Tap a cell to open that archetype.</p>
+      <h2>Coverage of layers and perspectives</h2>
+      <p class="lede">The five archetypes were selected so that together they cover all five layers and all three ODH perspectives. Select a cell to open the corresponding archetype.</p>
       <div class="card" style="padding:16px;margin-top:20px">
         <div class="grid-scroll"><table class="cov">
           <thead>${head}</thead>
@@ -785,8 +783,8 @@
     return `
     <div class="wrap page-head">
       <span class="eyebrow">Distribution of the burden</span>
-      <h1>Who is affected?</h1>
-      <p class="lede">Invisible context is not evenly distributed. Identifying who carries its consequences is part of the diagnosis.${cite([2, 4, 6])} Do you recognise yourself, or someone you know?</p>
+      <h1>Affected stakeholders</h1>
+      <p class="lede">Missing context is not evenly distributed. Identifying who bears its consequences is part of the diagnosis.${cite([2, 4, 6])} Select a group, and optionally an archetype, to see who is affected.</p>
     </div>
     <div class="wrap" style="padding-bottom:56px">
       <div class="tabs" role="tablist">
@@ -821,12 +819,12 @@
     return `
     <div class="wrap page-head">
       <span class="eyebrow">About this map</span>
-      <h1>A diagnosis, not a prescription</h1>
+      <h1>About this map</h1>
     </div>
     <div class="wrap" style="padding-bottom:56px">
       <div class="prose">
         <p class="lede">${gloss("This site presents the Context Invisibility Map (v0.2) produced by Sub-Group 1 of the EFMI LEAD 2026 Bootcamp, held at MIE 2026. The bootcamp's Grand Challenge is Invisible Context: a One Digital Health exploration of the hidden determinants that remain unseen, unshared or unusable in BMHI systems.")}</p>
-        <p>Sub-Group 1 — the <strong>Invisible Failure Analysis Lab (IFAL)</strong> — is the diagnostic engine of a three-lab design. Its job is to identify which contextual determinants of human, animal and environmental health are most systematically invisible, to whom, and through which mechanisms. It deliberately does not propose solutions: that diagnosis is handed on to the other two labs.</p>
+        <p>Sub-Group 1, the <strong>Invisible Failure Analysis Lab (IFAL)</strong>, is the diagnostic component of a three-lab design. Its task is to identify which contextual determinants of human, animal and environmental health are most systematically invisible, to whom, and through which mechanisms. It does not propose solutions; its diagnosis is passed on to the other two labs.</p>
       </div>
       <div class="labs">
         <div class="card me"><span class="eyebrow" style="margin-bottom:4px">Sub-Group 1 · this map</span><h4>Invisible Failure Analysis Lab</h4><p class="small muted" style="margin:0">Which determinants are most systematically invisible, and to whom?</p></div>
@@ -835,8 +833,8 @@
       </div>
       <div class="prose">
         <h2>Method in brief</h2>
-        <p>The map is anchored on <strong>decisions</strong>: a determinant counts as invisible only in relation to a decision it should have informed. Five <strong>archetypes</strong> — recurring classes of decision failure — were selected so that together they span all five layers of invisibility and all three ODH perspectives. Each is placed on the layers and on the ODH Steering Wheel, and grounded in the six seed publications below.</p>
-        <p class="small muted">The patient record on the home page is an illustrative composite of the decision failures described in the map, not a real case. Figures are reported as given in the cited sources; the provider-documentation figures come from a single-centre survey of 201 providers.${cite(6)}</p>
+        <p>The map is anchored on <strong>decisions</strong>: a determinant counts as invisible only in relation to a decision it should have informed. Five <strong>archetypes</strong> (recurring classes of decision failure) were selected so that together they span all five layers of invisibility and all three ODH perspectives. Each is placed on the layers and on the ODH Steering Wheel, and grounded in the six seed publications below.</p>
+        <p class="small muted">The patient record on the home page is an illustrative example that combines decision failures described in the map; it is not a real case. Figures are reported as given in the cited sources; the provider-documentation figures come from a single-centre survey of 201 providers.${cite(6)}</p>
         <h2>Team</h2>
         <p>${D.META.authors.map(esc).join(" · ")}</p>
         <h2 id="refs">References</h2>
@@ -846,7 +844,7 @@
   }
 
   function viewNotFound() {
-    return `<div class="wrap page-head" style="padding-bottom:80px"><h1>This page is invisible.</h1><p class="lede">Fittingly, nothing was recorded here.</p><a class="btn" href="#/">Back to the story</a></div>`;
+    return `<div class="wrap page-head" style="padding-bottom:80px"><h1>Page not found</h1><p class="lede">This address does not correspond to any page.</p><a class="btn" href="#/">Back to the home page</a></div>`;
   }
 
   /* ================================================================
@@ -856,8 +854,8 @@
     { re: /^\/?$/, name: "home", view: viewHome, bind: bindHome, title: "" },
     { re: /^\/map$/, name: "map", view: viewMap, bind: bindMap, title: "The Map" },
     { re: /^\/archetype\/(\d)$/, name: "archetype", view: (m) => viewArchetype(m[1]), bind: (m) => bindArchetype(m[1]), title: (m) => (byN(m[1]) || {}).name },
-    { re: /^\/layers$/, name: "layers", view: viewLayers, bind: null, title: "Why it stays hidden" },
-    { re: /^\/people$/, name: "people", view: viewPeople, bind: bindPeople, title: "Who is affected" },
+    { re: /^\/layers$/, name: "layers", view: viewLayers, bind: null, title: "Five layers of invisibility" },
+    { re: /^\/people$/, name: "people", view: viewPeople, bind: bindPeople, title: "Affected stakeholders" },
     { re: /^\/about$/, name: "about", view: viewAbout, bind: null, title: "About" }
   ];
 
