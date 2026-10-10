@@ -22,6 +22,7 @@ python3 -m http.server 8080 --directory MAP/website
 ```
 
 ## Publish at its own URL
+- **Vercel** (configured via `vercel.json`): `vercel --prod` from this folder, or import the GitHub repo at https://vercel.com/new — no build command, output directory = root.
 The site uses hash routes (`#/map`, `#/archetype/3`…), so it works on any static host without server configuration.
 
 - **Netlify**: drag the `website` folder onto https://app.netlify.com/drop, then set a custom domain.
