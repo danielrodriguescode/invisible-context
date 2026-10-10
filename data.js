@@ -65,40 +65,57 @@ window.IFAL = (function () {
   ];
 
   /* ------------------------------------------------------------------
-     ODH Steering Wheel (Benis et al. 2021 [2])
+     ODH Steering Wheel — as drawn in Benis et al. 2021, Fig. 1 [2]
+     Angles in degrees, counter-clockwise from 3 o'clock.
      ------------------------------------------------------------------ */
+  const CORE = {
+    name: "One Digital Health",
+    text: "A unified framework that brings the One Health and Digital Health communities together, so that human, animal and environmental data can support health decisions end-to-end."
+  };
+
   const KEYS = [
-    { id: "onehealth", name: "One Health", text: "Human, animal and environmental health are one system — what happens to animals and the environment shapes human health, and vice versa." },
-    { id: "digitalhealth", name: "Digital Health", text: "Data, devices, software and networks used to understand and support health." }
+    { id: "onehealth", name: "One Health", angle: 180,
+      text: "Human, animal and environmental health are one system — what happens to animals and the environment shapes human health, and vice versa." },
+    { id: "digitalhealth", name: "Digital Health", angle: 0,
+      text: "Data, devices, software and networks used to understand and support health." }
   ];
 
   const PERSPECTIVES = [
-    { id: "individual", name: "Individual", full: "Individual health & well-being",
+    { id: "individual", name: "Individual", full: "Individual Health and Wellbeing", angle: 90,
       text: "The single person in front of the clinician — their body, their life, their choices." },
-    { id: "population", name: "Population", full: "Population & society",
+    { id: "population", name: "Population", full: "Population and Society", angle: -30,
       text: "Groups and communities — what becomes visible (or not) only when many people's data is added up." },
-    { id: "ecosystem", name: "Ecosystem", full: "Ecosystem",
+    { id: "ecosystem", name: "Ecosystem", full: "Ecosystem", angle: 210,
       text: "The wider web of people, animals, environments and institutions in which health is produced." }
   ];
 
-  // angle = centre of the 72° sector, in degrees, counter-clockwise from 3 o'clock
   const DIMENSIONS = [
-    { id: "citizens", name: "Citizens' Engagement & Education", angle: 90, fill: "#DCE7F7", fillDark: "#24344F",
-      text: "People taking part in their own health: what citizens know, share and contribute." },
-    { id: "healthcare", name: "Healthcare", angle: 18, fill: "#D6EBDC", fillDark: "#1F3D2C",
-      text: "The clinical encounter and the systems that support it — where most decisions are taken." },
-    { id: "industry", name: "Healthcare Industry 4.0", angle: -54, fill: "#EEE1F7", fillDark: "#38284B",
-      text: "Sensors, devices, algorithms and AI: the automated and data-driven side of health." },
-    { id: "humanvet", name: "Human & Veterinary Healthcare", angle: -126, fill: "#FAE5D4", fillDark: "#4A3220",
-      text: "Human and animal medicine working together — especially for diseases that jump between species." },
-    { id: "environment", name: "Environment", angle: 162, fill: "#D6EFF1", fillDark: "#1C4045",
-      text: "Air, water, soil, climate and biodiversity — the conditions we all live in." }
+    { id: "education", name: "Education", angle: 54,
+      text: "Education and citizen science: health and digital literacy for everyone, not only for health professionals." },
+    { id: "citizens", name: "Citizens' engagement", angle: 126,
+      text: "People taking an active part in their own health and their own health data — sharing, contributing, deciding." },
+    { id: "industry", name: "Healthcare Industry (4.0)", angle: 198,
+      text: "Automation, devices, sensors, algorithms and AI: the data-driven production of care." },
+    { id: "humanvet", name: "Human and Veterinary Healthcare", angle: 270,
+      text: "Human and animal health care working together — from the clinical encounter to diseases shared between species." },
+    { id: "environment", name: "Environment", angle: 342,
+      text: "Air, water, soil, climate and biodiversity — increasingly monitored through sensors and smart environments." }
   ];
 
   const TECH_RING = {
-    name: "Technology Ring",
-    text: "The outer ring of the Steering Wheel: interoperability, standards and infrastructure that let data move between all the parts."
+    name: "Technology ring",
+    text: "The dotted ring between perspectives and dimensions: the digital technologies that act as the connection between all the parts of the wheel. In this map, the five archetypes are drawn on this ring — because invisible context is, above all, a connection that fails."
   };
+
+  // "Learn the wheel" walkthrough — built up ring by ring
+  const LEARN = [
+    { step: 0, title: "One Digital Health", text: "At the centre is One Digital Health: a single framework for future health ecosystems, joining two communities that rarely share data.", ref: 2 },
+    { step: 1, title: "Two keys", text: "The yellow ring holds the two enabling keys. One Health sees human, animal and environmental health as one system. Digital Health brings data, devices and software. ODH needs both.", ref: 2 },
+    { step: 2, title: "Three perspectives", text: "The blue ring shows three ways of looking at health: the individual and their wellbeing, the population and society, and the wider ecosystem.", ref: 2 },
+    { step: 3, title: "Five dimensions", text: "The green ring shows society's outlook on everything inside it: citizens' engagement, education, environment, human and veterinary healthcare, and Healthcare Industry 4.0.", ref: 2 },
+    { step: 4, title: "The technology ring", text: "The red dotted line is the technology ring — the digital connections that link perspectives and dimensions together. When it works, context flows to where decisions are made.", ref: 2 },
+    { step: 5, title: "Where context goes missing", text: "Our map places five archetypes of invisible context on the technology ring: each one is a place where a connection fails, and context that matters never reaches the decision. Tap one to follow its threads.", ref: 1 }
+  ];
 
   const CLUSTERS = [
     { id: "capture", name: "Capture-surface", archetypes: [1, 2, 4],
@@ -109,7 +126,7 @@ window.IFAL = (function () {
 
   /* ------------------------------------------------------------------
      The five archetypes (v0.2 Table 2 + decision failures)
-     wheel: angle (deg) + radius on the 0–380 wheel scale
+     wheel: angle (deg) of the marker on the technology ring
      ------------------------------------------------------------------ */
   const ARCHETYPES = [
     {
@@ -121,9 +138,9 @@ window.IFAL = (function () {
       layers: ["informational", "semantic"],
       perspectives: ["individual", "population"],
       spillover: [],
-      dimensions: ["healthcare", "citizens"],
+      dimensions: ["citizens", "humanvet"],
       cluster: "capture",
-      wheel: { angle: 54, r: 115 },
+      wheel: { angle: 30 },
       summary:
         "Social determinants that clinicians themselves consider vital — housing, food security, transport, money, childcare — are not routinely captured because there is no easy, structured way to record them. The problem is not that clinicians don't care: it's the shape of the record.",
       stats: [
@@ -161,7 +178,7 @@ window.IFAL = (function () {
       spillover: [],
       dimensions: ["environment", "industry"],
       cluster: "capture",
-      wheel: { angle: 162, r: 190 },
+      wheel: { angle: -40 },
       summary:
         "Environmental exposures — air pollution, water quality, household toxins, extreme weather — matter for clinical and public-health decisions, yet they are missing from clinical records and from most of the indicators that health institutions are judged by. Even where social context gains some ground, environmental context does not.",
       stats: [
@@ -195,7 +212,7 @@ window.IFAL = (function () {
       spillover: [],
       dimensions: ["industry"],
       cluster: "boundary",
-      wheel: { angle: -54, r: 115 },
+      wheel: { angle: 168 },
       summary:
         "Devices and algorithms are built and tested on particular groups of people. Patients outside those groups are present in the physical world yet misrepresented inside the computational model. These 'digital determinants of health' — data poverty, algorithmic bias, accessibility — amplify inequities that already exist.",
       stats: [
@@ -230,9 +247,9 @@ window.IFAL = (function () {
       layers: ["experiential"],
       perspectives: ["individual"],
       spillover: ["population"],
-      dimensions: ["citizens"],
+      dimensions: ["citizens", "education"],
       cluster: "capture",
-      wheel: { angle: 90, r: 78 },
+      wheel: { angle: 118 },
       summary:
         "Preferences, lived experience and informal care arrangements are information whose shape no structured field can hold. Free text may exist somewhere, but it is not findable at the moment a decision is made — so the patient's voice is lost at every handover.",
       stats: [
@@ -264,7 +281,7 @@ window.IFAL = (function () {
       spillover: [],
       dimensions: ["humanvet", "environment"],
       cluster: "boundary",
-      wheel: { angle: -162, r: 190 },
+      wheel: { angle: -100 },
       summary:
         "Here the data is not missing. It exists, is structured and is well maintained — in a veterinary, agricultural, environmental or foreign health system. What is missing is the legal, organisational and technical route that would let it reach the clinical decision.",
       stats: [
@@ -425,6 +442,6 @@ window.IFAL = (function () {
       doi: "10.1371/journal.pdig.0000428" }
   ];
 
-  return { META, LAYERS, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, CLUSTERS, ARCHETYPES,
+  return { META, LAYERS, CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, CLUSTERS, ARCHETYPES,
            STAKEHOLDERS, MECHANISMS, CHAIN, STORY, GLOSSARY, REFERENCES };
 })();

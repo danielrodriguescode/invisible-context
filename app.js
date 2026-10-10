@@ -39,143 +39,218 @@
   };
 
   /* ================================================================
-     ODH Steering Wheel (SVG)
-     Geometry follows MAP/assets/make_figs.py (fig. 1 of IFAL v0.2):
-     perspective rings inside, five 72° dimension sectors, outer
-     Technology Ring; markers on ring boundaries span two perspectives.
+     ODH Steering Wheel (SVG) — redrawn after Benis et al. 2021, Fig. 1:
+     red core, yellow keys ring, blue perspectives ring (3 sectors),
+     red dotted technology ring, green dimensions ring (5 sectors).
+     The archetype markers sit on the technology ring.
      ================================================================ */
-  const R = { hub: 40, ind: 115, pop: 190, eco: 265, dim: 345, tech: 380 };
+  const R = { core: 92, key: [104, 166], persp: [182, 236], tech: 258, dim: [280, 342] };
+  const COL = {
+    core: "#FF7C80", coreLine: "#E0575C",
+    key: "#FFD966", keyLine: "#D9AE1A",
+    persp: "#9DC3E6", perspLine: "#5E95C9",
+    dim: "#A9D18E", dimLine: "#6FA64A",
+    tech: "#E0201B", heat: "#C8102E"
+  };
+  const SPAN = { key: 180, perspective: 120, dimension: 72 };
+  const GAP = { key: 3, perspective: 2.2, dimension: 2.6 };
+  const TECH_LABEL = { mid: 72, span: 34 };
+
   const rad = (deg) => (deg * Math.PI) / 180;
   const pt = (deg, r) => [r * Math.cos(rad(deg)), -r * Math.sin(rad(deg))];
   const f = (n) => n.toFixed(2);
+  const sdiff = (from, to) => ((((to - from) % 360) + 540) % 360) - 180; // signed shortest angle
+  const upper = (a) => Math.sin(rad(a)) > -0.05;
 
-  function annulusPath(r0, r1) {
-    // full ring (even-odd)
-    return `M ${r1} 0 A ${r1} ${r1} 0 1 0 ${-r1} 0 A ${r1} ${r1} 0 1 0 ${r1} 0 Z ` +
-           `M ${r0} 0 A ${r0} ${r0} 0 1 1 ${-r0} 0 A ${r0} ${r0} 0 1 1 ${r0} 0 Z`;
-  }
-  function wedgePath(a0, a1, r0, r1) {
-    // a0 < a1, degrees CCW. SVG y is flipped, so CCW in math = sweep 0
-    const [x0, y0] = pt(a0, r1), [x1, y1] = pt(a1, r1);
-    const [x2, y2] = pt(a1, r0), [x3, y3] = pt(a0, r0);
-    const large = a1 - a0 > 180 ? 1 : 0;
-    return `M ${f(x0)} ${f(y0)} A ${r1} ${r1} 0 ${large} 0 ${f(x1)} ${f(y1)} L ${f(x2)} ${f(y2)} A ${r0} ${r0} 0 ${large} 1 ${f(x3)} ${f(y3)} Z`;
-  }
-  function arcPath(a0, a1, r, reverse) {
-    const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r);
-    return reverse
-      ? `M ${f(x1)} ${f(y1)} A ${r} ${r} 0 0 1 ${f(x0)} ${f(y0)}`
-      : `M ${f(x0)} ${f(y0)} A ${r} ${r} 0 0 0 ${f(x1)} ${f(y1)}`;
-  }
   const isDark = () => {
     const t = document.documentElement.getAttribute("data-theme");
     if (t) return t === "dark";
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   };
 
+  function wedgePath(a0, a1, r0, r1) {
+    // a0 < a1 in degrees CCW; SVG y is flipped, so CCW on screen = sweep 0
+    const [x0, y0] = pt(a0, r1), [x1, y1] = pt(a1, r1);
+    const [x2, y2] = pt(a1, r0), [x3, y3] = pt(a0, r0);
+    const large = a1 - a0 > 180 ? 1 : 0;
+    return `M ${f(x0)} ${f(y0)} A ${r1} ${r1} 0 ${large} 0 ${f(x1)} ${f(y1)} L ${f(x2)} ${f(y2)} A ${r0} ${r0} 0 ${large} 1 ${f(x3)} ${f(y3)} Z`;
+  }
+  function annulusPath(r0, r1) {
+    return `M ${r1} 0 A ${r1} ${r1} 0 1 0 ${-r1} 0 A ${r1} ${r1} 0 1 0 ${r1} 0 Z ` +
+           `M ${r0} 0 A ${r0} ${r0} 0 1 1 ${-r0} 0 A ${r0} ${r0} 0 1 1 ${r0} 0 Z`;
+  }
+  // arc for text: cw = clockwise (glyph tops face outward), else counter-clockwise (tops face the centre)
+  function textArcPath(mid, span, r, cw) {
+    const a0 = mid + span / 2, a1 = mid - span / 2;
+    const large = span > 180 ? 1 : 0;
+    if (cw) { const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `M ${f(x0)} ${f(y0)} A ${r} ${r} 0 ${large} 1 ${f(x1)} ${f(y1)}`; }
+    const [x0, y0] = pt(a1, r), [x1, y1] = pt(a0, r);
+    return `M ${f(x0)} ${f(y0)} A ${r} ${r} 0 ${large} 0 ${f(x1)} ${f(y1)}`;
+  }
+
+  function segments() {
+    const out = [];
+    D.KEYS.forEach((k) => out.push({ kind: "key", id: k.id, name: k.name, mid: k.angle, r: R.key, fill: COL.key, line: COL.keyLine, fs: 27, step: 1 }));
+    D.PERSPECTIVES.forEach((p) => out.push({ kind: "perspective", id: p.id, name: p.full, mid: p.angle, r: R.persp, fill: COL.persp, line: COL.perspLine, fs: 18, step: 2 }));
+    D.DIMENSIONS.forEach((d) => out.push({ kind: "dimension", id: d.id, name: d.name, mid: d.angle, r: R.dim, fill: COL.dim, line: COL.dimLine, fs: d.name.length > 26 ? 17 : 19, step: 3 }));
+    return out.map((g) => Object.assign(g, { span: SPAN[g.kind], gap: GAP[g.kind] }));
+  }
+  const segDef = (kind, id) => segments().find((g) => g.kind === kind && g.id === id);
+
+  let uidSeq = 0;
   function wheelSVG(opts = {}) {
     const mini = !!opts.mini;
-    const uid = mini ? "m" : "w";
-    const dark = isDark();
-    let s = `<svg class="wheel${mini ? " mini" : ""}" viewBox="-430 -430 860 860" role="img" aria-label="ODH Steering Wheel with the five invisibility archetypes">`;
+    const uid = "wh" + (++uidSeq);
+    const ti = mini ? -1 : 0;
+    const segs = segments();
+    let s = `<svg class="wheel${mini ? " mini" : ""}" viewBox="-390 -390 780 780" role="img" aria-label="One Digital Health Steering Wheel, with the five archetypes of invisible context on the technology ring">`;
+
     s += `<defs>`;
-    D.DIMENSIONS.forEach((d) => {
-      const lower = Math.sin(rad(d.angle)) < -0.1;
-      s += `<path id="${uid}-dl-${d.id}" d="${arcPath(d.angle - 34, d.angle + 34, lower ? 314 : 299, !lower)}"/>`;
+    segs.forEach((g) => {
+      const cw = upper(g.mid), rm = (g.r[0] + g.r[1]) / 2;
+      const rr = cw ? rm - g.fs * 0.34 : rm + g.fs * 0.34;
+      s += `<path id="${uid}-t-${g.id}" d="${textArcPath(g.mid, g.span - 2 * g.gap, rr, cw)}"/>`;
     });
-    s += `<path id="${uid}-tl-a" d="${arcPath(54 + 4, 126 - 4, 358, true)}"/>`;
-    s += `<path id="${uid}-tl-b" d="${arcPath(-126 + 4, -54 - 4, 367, false)}"/>`;
+    s += `<path id="${uid}-t-tech" d="${textArcPath(TECH_LABEL.mid, TECH_LABEL.span + 10, R.tech - 5, true)}"/>`;
+    s += `<radialGradient id="${uid}-core" cx="50%" cy="42%" r="62%"><stop offset="0%" stop-color="#FFA3A6"/><stop offset="100%" stop-color="${COL.core}"/></radialGradient>`;
+    s += `<filter id="${uid}-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>`;
     s += `</defs>`;
 
-    // technology ring
-    s += `<path class="tech hit" data-kind="tech" data-id="tech" d="${annulusPath(R.dim, R.tech)}" fill-rule="evenodd"><title>${esc(D.TECH_RING.name)}</title></path>`;
-    s += `<text class="tech-label"><textPath href="#${uid}-tl-a" startOffset="50%" text-anchor="middle">Technology ring · interoperability &amp; standards</textPath></text>`;
-    s += `<text class="tech-label"><textPath href="#${uid}-tl-b" startOffset="50%" text-anchor="middle">Technology ring · infrastructure</textPath></text>`;
+    const segG = (g) => {
+      const d = wedgePath(g.mid - g.span / 2 + g.gap, g.mid + g.span / 2 - g.gap, g.r[0], g.r[1]);
+      const heat = g.kind === "key" ? 0 : matchArchetypes(g.kind, g.id).length;
+      return `<g class="seg" data-kind="${g.kind}" data-id="${g.id}" data-mid="${g.mid}" tabindex="${ti}" role="button" aria-label="${esc(kindLabel(g.kind))}: ${esc(g.name)}">
+        <path class="seg-shape" d="${d}" fill="${g.fill}" stroke="${g.line}"/>
+        <path class="seg-heat" d="${d}" style="--heat:${(heat / 4) * 0.62}"/>
+        <text class="seg-label" font-size="${g.fs}" ${g.kind === "key" ? 'font-weight="800"' : ""}><textPath href="#${uid}-t-${g.id}" startOffset="50%" text-anchor="middle">${esc(g.name)}</textPath></text>
+      </g>`;
+    };
 
-    // dimension sectors
-    D.DIMENSIONS.forEach((d) => {
-      s += `<path class="sector hit" data-kind="dimension" data-id="${d.id}" fill="${dark ? d.fillDark : d.fill}" d="${wedgePath(d.angle - 36, d.angle + 36, R.eco, R.dim)}" tabindex="${mini ? -1 : 0}" role="button" aria-label="Dimension: ${esc(d.name)}"><title>${esc(d.name)}</title></path>`;
-      s += `<text class="dim-label"><textPath href="#${uid}-dl-${d.id}" startOffset="50%" text-anchor="middle">${esc(d.name)}</textPath></text>`;
+    // dimensions (outer, green)
+    s += `<g class="stepped g-dims" data-step="3">${segs.filter((g) => g.kind === "dimension").map(segG).join("")}</g>`;
+
+    // technology ring (red dotted)
+    const dotsPath = textArcPath(TECH_LABEL.mid + 180, 360 - TECH_LABEL.span - 4, R.tech, true);
+    s += `<g class="stepped g-tech tech" data-step="4" data-kind="tech" data-id="tech" tabindex="${ti}" role="button" aria-label="Technology ring">
+      <path class="tech-hit" d="${annulusPath(R.persp[1] + 2, R.dim[0] - 2)}" fill-rule="evenodd"/>
+      <path class="tech-dots" d="${dotsPath}"/>
+      <text class="tech-label"><textPath href="#${uid}-t-tech" startOffset="50%" text-anchor="middle">Technology ring</textPath></text>
+    </g>`;
+
+    // perspectives (blue)
+    s += `<g class="stepped g-persp" data-step="2">${segs.filter((g) => g.kind === "perspective").map(segG).join("")}</g>`;
+    // keys (yellow)
+    s += `<g class="stepped g-keys" data-step="1">${segs.filter((g) => g.kind === "key").map(segG).join("")}</g>`;
+
+    // core
+    s += `<g class="seg core" data-kind="core" data-id="core" data-mid="90" tabindex="${ti}" role="button" aria-label="One Digital Health">
+      <circle r="${R.core}" fill="url(#${uid}-core)" stroke="${COL.coreLine}" stroke-width="1.5"/>
+      <text class="core-label" text-anchor="middle" y="-22">One</text>
+      <text class="core-label" text-anchor="middle" y="8">Digital</text>
+      <text class="core-label" text-anchor="middle" y="38">Health</text>
+    </g>`;
+
+    // hotspot badges
+    s += `<g class="g-badges" aria-hidden="true">`;
+    segs.filter((g) => g.kind !== "key").forEach((g) => {
+      const n = matchArchetypes(g.kind, g.id).length;
+      // dimensions: just outside the green ring; perspectives: on the blue ring's outer edge, clear of the markers
+      const PB = { individual: 140, population: -70, ecosystem: 212 };
+      const [x, y] = g.kind === "dimension" ? pt(g.mid, R.dim[1] + 20) : pt(PB[g.id], R.persp[1] + 1);
+      s += `<g transform="translate(${f(x)} ${f(y)})"><circle r="13"/><text text-anchor="middle" dy="5">${n}</text></g>`;
     });
+    s += `</g>`;
 
-    // perspective rings
-    s += `<path class="ring hit" data-kind="perspective" data-id="ecosystem" d="${annulusPath(R.pop, R.eco)}" fill-rule="evenodd" tabindex="${mini ? -1 : 0}" role="button" aria-label="Perspective: Ecosystem"><title>Ecosystem perspective</title></path>`;
-    s += `<path class="ring alt hit" data-kind="perspective" data-id="population" d="${annulusPath(R.ind, R.pop)}" fill-rule="evenodd" tabindex="${mini ? -1 : 0}" role="button" aria-label="Perspective: Population"><title>Population perspective</title></path>`;
-    s += `<path class="ring hit" data-kind="perspective" data-id="individual" d="${annulusPath(R.hub, R.ind)}" fill-rule="evenodd" tabindex="${mini ? -1 : 0}" role="button" aria-label="Perspective: Individual"><title>Individual perspective</title></path>`;
-
-    // sector guides
-    D.DIMENSIONS.forEach((d) => {
-      const [x0, y0] = pt(d.angle + 36, R.hub), [x1, y1] = pt(d.angle + 36, R.eco);
-      s += `<line class="guide" x1="${f(x0)}" y1="${f(y0)}" x2="${f(x1)}" y2="${f(y1)}"/>`;
-    });
-
-    // ring labels (bottom)
-    s += `<text class="ring-label" style="stroke:var(--wheel-ring)" x="0" y="${R.ind - 16}" text-anchor="middle">Individual</text>`;
-    s += `<text class="ring-label" style="stroke:var(--wheel-ring-alt)" x="0" y="${R.pop - 22}" text-anchor="middle">Population</text>`;
-    s += `<text class="ring-label" style="stroke:var(--wheel-ring)" x="0" y="${R.eco - 24}" text-anchor="middle">Ecosystem</text>`;
-
-    // hub: the two enabling keys
-    s += `<path class="hub-half hit" data-kind="key" data-id="onehealth" fill="${dark ? "#1F3D2C" : "#E3F1E6"}" d="M 0 ${-R.hub} A ${R.hub} ${R.hub} 0 0 0 0 ${R.hub} Z" tabindex="${mini ? -1 : 0}" role="button" aria-label="Enabling key: One Health"><title>One Health key</title></path>`;
-    s += `<path class="hub-half hit" data-kind="key" data-id="digitalhealth" fill="${dark ? "#24344F" : "#E1EAF8"}" d="M 0 ${-R.hub} A ${R.hub} ${R.hub} 0 0 1 0 ${R.hub} Z" tabindex="${mini ? -1 : 0}" role="button" aria-label="Enabling key: Digital Health"><title>Digital Health key</title></path>`;
-    s += `<text class="hub-label" x="-20" y="-2" text-anchor="middle">One</text><text class="hub-label" x="-20" y="10" text-anchor="middle">Health</text>`;
-    s += `<text class="hub-label" x="20" y="-2" text-anchor="middle">Digital</text><text class="hub-label" x="20" y="10" text-anchor="middle">Health</text>`;
-
-    // connection layer
-    s += `<g class="links"></g>`;
-
-    // markers
+    // threads + markers
+    s += `<g class="g-threads" aria-hidden="true"></g>`;
+    s += `<g class="stepped g-markers" data-step="5">`;
     D.ARCHETYPES.forEach((a) => {
-      const [x, y] = pt(a.wheel.angle, a.wheel.r);
-      const sel = opts.selected === a.n;
-      const fade = opts.selected && !sel && mini;
-      s += `<g class="marker${sel ? " sel" : ""}${fade ? " fade" : ""}" data-n="${a.n}" transform="translate(${f(x)} ${f(y)})" tabindex="${mini ? -1 : 0}" role="button" aria-label="Archetype ${a.n}: ${esc(a.name)}">`;
-      if (a.spillover.length) s += `<circle class="spill" r="38" stroke="${a.color}"/>`;
-      s += `<circle class="halo" r="33" stroke="${a.color}"/>`;
-      s += `<circle class="m" r="25" fill="${a.color}"/>`;
+      const [x, y] = pt(a.wheel.angle, R.tech);
+      s += `<g class="marker" data-n="${a.n}" transform="translate(${f(x)} ${f(y)})" tabindex="${ti}" role="button" aria-label="Archetype ${a.n}: ${esc(a.name)}">`;
+      s += `<circle class="glow" r="26" fill="${a.color}" filter="url(#${uid}-glow)"/>`;
+      if (a.spillover.length) s += `<circle class="spill" r="34" stroke="${a.color}"/>`;
+      s += `<circle class="halo" r="30" stroke="${a.color}"/>`;
+      s += `<circle class="m" r="22" fill="${a.color}"/>`;
       s += `<text text-anchor="middle" dy="7.5">${a.n}</text>`;
-      s += `<title>${a.n}. ${esc(a.name)}</title></g>`;
+      s += `</g>`;
     });
-
-    s += `</svg>`;
+    s += `</g></svg>`;
     return s;
   }
 
-  // highlight state on an existing wheel svg
-  function paintWheel(svg, state) {
-    const { kind, id, selected } = state;
-    const matches = matchArchetypes(kind, id);
+  function kindLabel(kind) {
+    return { key: "Enabling key", perspective: "Perspective", dimension: "Dimension", tech: "Technology ring", core: "Core" }[kind] || kind;
+  }
+
+  // state = { kind, id, selected, heat, step }
+  function paintWheel(svg, state = {}) {
+    const { kind, id, selected, heat } = state;
+    const step = state.step == null ? 5 : state.step;
+    const selA = selected ? byN(selected) : null;
+    const matches = kind ? matchArchetypes(kind, id) : null;
+    svg.classList.toggle("heat", !!heat);
+
+    // learn-mode build-up
+    $$(".stepped", svg).forEach((g) => {
+      const s = Number(g.dataset.step);
+      g.classList.toggle("off", s > step);
+      g.classList.toggle("now", state.step != null && s === step);
+    });
+    const core = $(".core", svg);
+    core.classList.toggle("now", state.step === 0);
+
+    $$(".seg", svg).forEach((g) => {
+      const k = g.dataset.kind, i = g.dataset.id;
+      let lit = false, ghost = false, pop = false;
+      if (selA) {
+        lit = (k === "perspective" && (selA.perspectives.includes(i) || selA.spillover.includes(i))) ||
+              (k === "dimension" && selA.dimensions.includes(i));
+        ghost = !lit && k !== "core";
+      } else if (kind && kind !== "core" && kind !== "tech" && kind !== "layer" && kind !== "cluster") {
+        pop = k === kind && i === id;
+        ghost = !pop && k !== "core";
+      }
+      g.classList.toggle("lit", lit);
+      g.classList.toggle("ghost", ghost);
+      g.classList.toggle("pop", pop);
+      if (selA) g.style.setProperty("--lit", selA.color); else g.style.removeProperty("--lit");
+      if (pop) { const [dx, dy] = pt(Number(g.dataset.mid), 12); g.style.transform = `translate(${f(dx)}px, ${f(dy)}px)`; }
+      else g.style.transform = "";
+    });
+    $(".tech", svg).classList.toggle("on", kind === "tech" || !!selA);
+    $(".tech", svg).classList.toggle("ghost", !!kind && kind !== "tech" && kind !== "core" && !selA && (kind === "perspective" || kind === "dimension" || kind === "key"));
+
     $$(".marker", svg).forEach((m) => {
       const n = Number(m.dataset.n);
       m.classList.toggle("sel", selected === n);
-      let fade = false;
-      if (selected) fade = selected !== n;
-      else if (kind) fade = !matches.includes(n);
-      m.classList.toggle("fade", fade);
+      m.classList.toggle("fade", selA ? selected !== n : (matches ? !matches.includes(n) : false));
     });
-    // sectors / rings
-    const selA = selected ? byN(selected) : null;
-    $$(".sector", svg).forEach((p) => {
-      const on = (kind === "dimension" && p.dataset.id === id) || (selA && selA.dimensions.includes(p.dataset.id));
-      p.classList.toggle("on", !!on);
-      p.classList.toggle("dim-off", !!((kind === "dimension" || selA) && !on));
-    });
-    $$(".ring", svg).forEach((p) => {
-      const on = (kind === "perspective" && p.dataset.id === id) ||
-        (selA && (selA.perspectives.includes(p.dataset.id)));
-      p.classList.toggle("on", !!on);
-    });
-    $(".tech", svg).classList.toggle("on", kind === "tech");
-    // links from selected marker to its dimensions
-    const g = $(".links", svg);
-    g.innerHTML = "";
+
+    // threads: archetype → its perspectives (inward) and dimensions (outward)
+    const tg = $(".g-threads", svg);
+    tg.innerHTML = "";
+    const thread = (a, sk, sid, spill) => {
+      const g = segDef(sk, sid);
+      const lim = g.span / 2 - 9;
+      const d = Math.max(-lim, Math.min(lim, sdiff(g.mid, a.wheel.angle)));
+      const ta = g.mid + d;
+      const rm = (g.r[0] + g.r[1]) / 2;
+      let [tx, ty] = pt(ta, rm);
+      if (!selA && kind === sk && id === sid) { const [dx, dy] = pt(g.mid, 12); tx += dx; ty += dy; }
+      const [mx, my] = pt(a.wheel.angle, R.tech);
+      const ca = a.wheel.angle + sdiff(a.wheel.angle, ta) / 2;
+      const cr = sk === "dimension" ? R.dim[1] + 10 : R.persp[0] - 10;
+      const [cx, cy] = pt(ca, Math.abs(sdiff(a.wheel.angle, ta)) < 25 ? (R.tech + rm) / 2 : cr);
+      tg.insertAdjacentHTML("beforeend",
+        `<path class="thread${spill ? " spill" : ""}" stroke="${a.color}" d="M ${f(mx)} ${f(my)} Q ${f(cx)} ${f(cy)} ${f(tx)} ${f(ty)}"/>` +
+        `<circle class="thread-end" cx="${f(tx)}" cy="${f(ty)}" r="${spill ? 5 : 7}" fill="${a.color}"/>`);
+    };
     if (selA) {
-      const [mx, my] = pt(selA.wheel.angle, selA.wheel.r);
-      selA.dimensions.forEach((did) => {
-        const d = dim(did);
-        const [tx, ty] = pt(d.angle, (R.eco + R.dim) / 2);
-        const [cx, cy] = pt((selA.wheel.angle + d.angle) / 2, (selA.wheel.r + R.eco) / 2 + 20);
-        g.insertAdjacentHTML("beforeend", `<path class="link" stroke="${selA.color}" d="M ${f(mx)} ${f(my)} Q ${f(cx)} ${f(cy)} ${f(tx)} ${f(ty)}"/><circle cx="${f(tx)}" cy="${f(ty)}" r="6" fill="${selA.color}"/>`);
-      });
+      selA.perspectives.forEach((p) => thread(selA, "perspective", p, false));
+      selA.spillover.forEach((p) => thread(selA, "perspective", p, true));
+      selA.dimensions.forEach((dd) => thread(selA, "dimension", dd, false));
+    } else if (kind === "perspective" || kind === "dimension") {
+      matches.forEach((n) => { const a = byN(n); thread(a, kind, id, a.spillover.includes(id)); });
     }
   }
 
@@ -187,8 +262,7 @@
       if (kind === "dimension") return a.dimensions.includes(id);
       if (kind === "cluster") return a.cluster === id;
       if (kind === "key") return id === "onehealth" ? [2, 5].includes(a.n) : [1, 3, 4].includes(a.n);
-      if (kind === "tech") return [1, 3, 5].includes(a.n);
-      return true;
+      return true; // core, tech
     }).map((a) => a.n);
   }
 
@@ -307,7 +381,8 @@
   }
 
   /* ---------------------------------------------------------------- MAP */
-  const mapState = { kind: null, id: null, selected: null };
+  const mapState = { kind: null, id: null, selected: null, heat: false, mode: "explore", step: 0 };
+  let tourTimer = null;
 
   function viewMap() {
     const chipGroup = (label, kind, items) => `
@@ -319,26 +394,44 @@
     <div class="wrap page-head">
       <span class="eyebrow">The Context Invisibility Map on the ODH Steering Wheel</span>
       <h1>Where does context go missing?</h1>
-      <p class="lede">${gloss("The One Digital Health (ODH) Steering Wheel joins two enabling keys — One Health and Digital Health — across three perspectives (rings) and five dimensions (outer sectors). Each numbered marker is one archetype of invisible context. Tap a ring, a sector, a marker or a filter to see what lights up — and what fades from view.")}${cite(2)}</p>
+      <p class="lede">${gloss("The One Digital Health (ODH) Steering Wheel has two keys (yellow), three perspectives (blue) and five dimensions (green), held together by the technology ring (red dots). We placed the five archetypes of invisible context on that ring — each is a connection that fails. Tap anything on the wheel, follow the threads, or let the tour guide you.")}${cite(2)}</p>
     </div>
     <div class="wrap map-layout">
       <div class="card wheel-box">
-        <div id="wheelHost">${wheelSVG()}</div>
-        <div class="wheel-legend">
-          <span>Rings = ODH perspectives</span>
-          <span>Outer sectors = ODH dimensions</span>
-          <span>A marker on a ring boundary spans both perspectives</span>
-          <span><i></i> dashed halo = spillover</span>
+        <div class="wheel-toolbar">
+          <div class="seg-ctrl" role="tablist" aria-label="Map mode">
+            <button role="tab" data-mode="explore" aria-selected="true">Explore</button>
+            <button role="tab" data-mode="learn" aria-selected="false">Learn the wheel</button>
+          </div>
+          <div class="tools">
+            <button class="tool" id="heatBtn" aria-pressed="false" title="Show how many archetypes touch each part of the wheel">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z" fill="currentColor"/></svg>Hotspots</button>
+            <button class="tool" id="tourBtn" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="play" d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Tour</span></button>
+          </div>
         </div>
+        <div id="wheelHost">${wheelSVG()}</div>
+        <div class="odh-legend" aria-hidden="true">
+          <span><i style="background:${COL.key}"></i>Keys</span>
+          <span><i style="background:${COL.persp}"></i>Perspectives</span>
+          <span><i style="background:${COL.dim}"></i>Dimensions</span>
+          <span><i class="dots"></i>Technology ring</span>
+          <span><i style="background:var(--ink);border-radius:50%"></i>Archetype</span>
+        </div>
+        <div class="arch-dock" id="dock">
+          ${D.ARCHETYPES.map((a) => `<button data-pick="${a.n}" style="--c:${a.color}" aria-pressed="false" title="${esc(a.name)}">${num(a)}<span>${esc(a.plain)}</span></button>`).join("")}
+        </div>
+        <p class="hint small muted">Tip: hover or tap any ring segment · use ← → keys to step through the archetypes</p>
       </div>
       <div class="card panel">
-        <div class="filters">
-          ${chipGroup("Layer of invisibility — why it's hidden", "layer", D.LAYERS)}
-          ${chipGroup("ODH perspective", "perspective", D.PERSPECTIVES)}
-          ${chipGroup("ODH dimension", "dimension", D.DIMENSIONS)}
-          ${chipGroup("Cluster", "cluster", D.CLUSTERS)}
+        <div id="explorePanel">
+          <div class="filters">
+            ${chipGroup("Filter by layer — why it's hidden", "layer", D.LAYERS)}
+            ${chipGroup("Filter by cluster", "cluster", D.CLUSTERS)}
+          </div>
+          <div class="inspector" id="inspector" aria-live="polite"></div>
         </div>
-        <div class="inspector" id="inspector" aria-live="polite"></div>
+        <div id="learnPanel" hidden aria-live="polite"></div>
       </div>
     </div>
     <div class="wrap" style="padding-bottom:56px">
@@ -346,11 +439,13 @@
         <h3>Invisibility is an interface problem</h3>
         <p style="margin:0">The archetypes sit at different interfaces of the ODH ecosystem. The SDOH gap and patient narrative concentrate at the individual and population levels; environmental blindness links population and ecosystem; algorithmic data poverty sits between individuals, populations and Healthcare Industry 4.0; governance silos sit in the exchange between human, veterinary and environmental systems. Relevant information may exist in one part of the ecosystem and never become visible in another — and no single fix resolves every archetype.${cite(2)}</p>
       </div>
+      <p class="small muted" style="margin-top:14px">Wheel redrawn after Benis et al. 2021, Fig. 1.${cite(2)} The placement of archetypes on the technology ring, and the links between archetypes and the two keys, are this map's interpretation.</p>
     </div>`;
   }
 
   function inspectorHTML() {
     const { kind, id, selected } = mapState;
+    const pills = (list, fn) => list.map(fn).join("");
     if (selected) {
       const a = byN(selected);
       return `
@@ -358,22 +453,23 @@
         <h3>${esc(a.name)}</h3>
         <p>${esc(a.tagline)}</p>
         <dl class="kv">
-          <dt>Why hidden</dt><dd>${a.layers.map(layerBadge).join("")}</dd>
-          <dt>Perspective</dt><dd>${a.perspectives.map((p) => `<span class="chip">${esc(persp(p).name)}</span>`).join("")}${a.spillover.map((p) => `<span class="chip">${esc(persp(p).name)} (spillover)</span>`).join("")}</dd>
-          <dt>Dimension</dt><dd>${a.dimensions.map((d) => `<span class="chip">${esc(dim(d).name)}</span>`).join("")}</dd>
+          <dt>Why hidden</dt><dd>${pills(a.layers, layerBadge)}</dd>
+          <dt>Perspective</dt><dd>${pills(a.perspectives, (p) => `<button class="chip mini-chip" data-go="perspective:${p}">${esc(persp(p).full)}</button>`)}${pills(a.spillover, (p) => `<button class="chip mini-chip" data-go="perspective:${p}">${esc(persp(p).full)} (spillover)</button>`)}</dd>
+          <dt>Dimension</dt><dd>${pills(a.dimensions, (d) => `<button class="chip mini-chip" data-go="dimension:${d}">${esc(dim(d).name)}</button>`)}</dd>
           <dt>Cluster</dt><dd><span class="chip">${esc(cluster(a.cluster).name)}</span></dd>
         </dl>
-        <p class="small muted">${esc(cluster(a.cluster).text)}</p>
+        <div class="story card" style="border-left-color:${a.color};box-shadow:none"><h3>${esc(a.failures[0].title)}</h3><p>${esc(a.failures[0].text)}${cite(a.failures[0].ref)}</p></div>
         <div class="btn-row" style="margin-top:12px"><a class="btn" href="#/archetype/${a.n}">Explore this archetype →</a><button class="clear-btn" data-clear>Clear</button></div>`;
     }
     if (kind) {
       let title = "", text = "", sub = "";
       if (kind === "layer") { const l = layer(id); title = `${l.name} invisibility`; sub = l.question; text = `<strong>What's missing:</strong> ${esc(l.missing)}<br><strong>Consequence:</strong> ${esc(l.consequence)}${cite(l.refs)}`; }
-      if (kind === "perspective") { const p = persp(id); title = `${p.full}`; sub = "ODH perspective"; text = esc(p.text); }
-      if (kind === "dimension") { const d = dim(id); title = d.name; sub = "ODH dimension"; text = esc(d.text); }
+      if (kind === "perspective") { const p = persp(id); title = p.full; sub = "ODH perspective · blue ring"; text = esc(p.text); }
+      if (kind === "dimension") { const d = dim(id); title = d.name; sub = "ODH dimension · green ring"; text = esc(d.text); }
       if (kind === "cluster") { const c = cluster(id); title = `${c.name} invisibilities`; sub = "Cluster"; text = esc(c.text) + " A way of making context visible that works for one cluster will not, on its own, address the other."; }
-      if (kind === "key") { const k = D.KEYS.find((x) => x.id === id); title = `${k.name} key`; sub = "Enabling key"; text = esc(k.text) + (id === "onehealth" ? " The archetypes that most directly involve animal and environmental health are highlighted." : " The archetypes rooted in records, devices and algorithms are highlighted."); }
-      if (kind === "tech") { title = D.TECH_RING.name; sub = "Outer ring"; text = esc(D.TECH_RING.text) + " Highlighted: archetypes where data exists but cannot be exchanged or interpreted across systems (semantic or governance barriers)."; }
+      if (kind === "key") { const k = D.KEYS.find((x) => x.id === id); title = `${k.name}`; sub = "Enabling key · yellow ring"; text = esc(k.text) + (id === "onehealth" ? " <em>In this map's reading</em>, the archetypes that most directly involve animal and environmental health are highlighted." : " <em>In this map's reading</em>, the archetypes rooted in records, devices and algorithms are highlighted."); }
+      if (kind === "tech") { title = D.TECH_RING.name; sub = "Red dotted ring"; text = esc(D.TECH_RING.text); }
+      if (kind === "core") { title = D.CORE.name; sub = "Centre of the wheel"; text = esc(D.CORE.text) + cite(2); }
       const list = matchArchetypes(kind, id);
       return `
         <span class="eyebrow" style="margin-bottom:4px">${esc(sub)}</span>
@@ -386,46 +482,125 @@
     return `
       <span class="eyebrow" style="margin-bottom:4px">How to read the wheel</span>
       <h3>Five archetypes, one ecosystem</h3>
-      <p>Each archetype is a recurring way that health decisions fail because context was absent. Together they were chosen to cover all five layers of invisibility and all three ODH perspectives.</p>
+      <p>Each numbered marker is a recurring way that health decisions fail because context was absent. Tap one to see the threads linking it to its perspectives and dimensions. Together they cover all five layers of invisibility and all three ODH perspectives.</p>
       <div class="list">${D.ARCHETYPES.map((a) => `<button class="alink" data-pick="${a.n}">${num(a)}<span><span class="t">${esc(a.name)}</span><br><span class="s">${esc(a.plain)}</span></span></button>`).join("")}</div>`;
+  }
+
+  function learnHTML() {
+    const L = D.LEARN, s = L[mapState.step];
+    return `
+      <span class="eyebrow" style="margin-bottom:4px">Learn the wheel · step ${s.step + 1} of ${L.length}</span>
+      <h3>${esc(s.title)}</h3>
+      <p>${gloss(esc(s.text))}${cite(s.ref)}</p>
+      <div class="steps" role="tablist" aria-label="Steps">${L.map((x) => `<button data-step="${x.step}" aria-selected="${x.step === s.step}" aria-label="Step ${x.step + 1}: ${esc(x.title)}"></button>`).join("")}</div>
+      <div class="btn-row">
+        <button class="btn ghost" data-learn="-1" ${s.step === 0 ? "disabled" : ""}>← Back</button>
+        ${s.step < L.length - 1 ? `<button class="btn" data-learn="1">Next →</button>` : `<button class="btn" data-mode-go="explore">Start exploring →</button>`}
+      </div>`;
   }
 
   function bindMap() {
     const svg = $("#wheelHost svg");
     const insp = $("#inspector");
+    const learnPanel = $("#learnPanel");
+    const learn = () => mapState.mode === "learn";
+
     const render = () => {
-      paintWheel(svg, mapState);
-      insp.innerHTML = inspectorHTML();
+      paintWheel(svg, learn() ? { step: mapState.step, heat: mapState.heat } : Object.assign({}, mapState, { step: null }));
+      $("#explorePanel").hidden = learn();
+      learnPanel.hidden = !learn();
+      if (learn()) learnPanel.innerHTML = learnHTML(); else insp.innerHTML = inspectorHTML();
+      $$(".seg-ctrl [data-mode]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.mode === mapState.mode)));
       $$(".chip[data-kind]").forEach((c) => c.setAttribute("aria-pressed", String(!mapState.selected && c.dataset.kind === mapState.kind && c.dataset.id === mapState.id)));
+      $$("#dock [data-pick]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.pick) === mapState.selected)));
+      $("#heatBtn").setAttribute("aria-pressed", String(mapState.heat));
+      $("#tourBtn").setAttribute("aria-pressed", String(!!tourTimer));
+      $("#tourBtn span").textContent = tourTimer ? "Pause tour" : "Tour";
+      $("#tourBtn path").setAttribute("d", tourTimer ? "M7 5h4v14H7zM13 5h4v14h-4z" : "M8 5v14l11-7z");
     };
+    const stopTour = () => { if (tourTimer) { clearInterval(tourTimer); tourTimer = null; } };
+    const setMode = (m) => { stopTour(); mapState.mode = m; if (m === "learn") { mapState.step = 0; mapState.kind = mapState.id = mapState.selected = null; } render(); };
     const setFocus = (kind, id) => {
-      if (mapState.kind === kind && mapState.id === id && !mapState.selected) { mapState.kind = mapState.id = null; }
+      if (learn()) setMode("explore");
+      if (mapState.kind === kind && mapState.id === id && !mapState.selected) mapState.kind = mapState.id = null;
       else { mapState.kind = kind; mapState.id = id; }
       mapState.selected = null;
       render();
     };
-    const select = (n) => {
-      mapState.selected = mapState.selected === n ? null : n;
+    const select = (n, toggle = true) => {
+      if (learn()) mapState.mode = "explore";
+      mapState.selected = toggle && mapState.selected === n ? null : n;
+      mapState.kind = mapState.id = null;
       render();
-      if (window.innerWidth < 980) insp.scrollIntoView({ behavior: "smooth", block: "start" });
     };
+    const userSelect = (n) => { stopTour(); select(n); if (window.innerWidth < 980 && mapState.selected) insp.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
+    // clicks on the wheel
     svg.addEventListener("click", (e) => {
       const m = e.target.closest(".marker");
-      if (m) return select(Number(m.dataset.n));
-      const h = e.target.closest(".hit");
-      if (h) setFocus(h.dataset.kind, h.dataset.id);
+      if (m) return userSelect(Number(m.dataset.n));
+      const h = e.target.closest("[data-kind]");
+      if (h) { stopTour(); setFocus(h.dataset.kind, h.dataset.id); }
     });
+    // keyboard: Enter/Space activate, arrows step through archetypes
     svg.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      e.target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault(); stopTour();
+        const cur = mapState.selected || (e.key === "ArrowRight" ? 0 : 1);
+        const next = ((cur - 1 + (e.key === "ArrowRight" ? 1 : -1) + 5) % 5) + 1;
+        select(next, false);
+      }
     });
-    $$(".chip[data-kind]").forEach((c) => c.addEventListener("click", () => setFocus(c.dataset.kind, c.dataset.id)));
+    // hover tooltips
+    const tipFor = (el) => {
+      const m = el.closest(".marker");
+      if (m) { const a = byN(m.dataset.n); return `<strong>${a.n}. ${esc(a.name)}</strong><br>${esc(a.tagline)}`; }
+      const h = el.closest("[data-kind]");
+      if (!h) return null;
+      const k = h.dataset.kind, i = h.dataset.id;
+      const n = matchArchetypes(k, i).length;
+      const count = k === "key" ? "" : `<br><span style="opacity:.75">${n} archetype${n === 1 ? "" : "s"} of invisible context</span>`;
+      if (k === "core") return `<strong>${esc(D.CORE.name)}</strong><br>${esc(D.CORE.text)}`;
+      if (k === "tech") return `<strong>${esc(D.TECH_RING.name)}</strong><br>Where perspectives and dimensions connect.${count}`;
+      if (k === "key") { const x = D.KEYS.find((q) => q.id === i); return `<strong>Key · ${esc(x.name)}</strong><br>${esc(x.text)}`; }
+      if (k === "perspective") { const x = persp(i); return `<strong>Perspective · ${esc(x.full)}</strong><br>${esc(x.text)}${count}`; }
+      if (k === "dimension") { const x = dim(i); return `<strong>Dimension · ${esc(x.name)}</strong><br>${esc(x.text)}${count}`; }
+      return null;
+    };
+    svg.addEventListener("mousemove", (e) => {
+      const html = tipFor(e.target);
+      if (!html) { hideTip(); return; }
+      showTipAt(e.clientX, e.clientY, html);
+    });
+    svg.addEventListener("mouseleave", hideTip);
+
+    $$(".seg-ctrl [data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+    $$(".chip[data-kind]").forEach((c) => c.addEventListener("click", () => { stopTour(); setFocus(c.dataset.kind, c.dataset.id); }));
+    $("#dock").addEventListener("click", (e) => { const b = e.target.closest("[data-pick]"); if (b) userSelect(Number(b.dataset.pick)); });
+    $("#heatBtn").addEventListener("click", () => { mapState.heat = !mapState.heat; render(); });
+    $("#tourBtn").addEventListener("click", () => {
+      if (tourTimer) { stopTour(); render(); return; }
+      if (learn()) mapState.mode = "explore";
+      let n = mapState.selected || 0;
+      const tick = () => { n = (n % 5) + 1; select(n, false); };
+      tick();
+      tourTimer = setInterval(() => { if (!document.body.contains(svg)) { stopTour(); return; } tick(); }, 5200);
+      render();
+    });
     insp.addEventListener("click", (e) => {
       const p = e.target.closest("[data-pick]");
-      if (p) { mapState.selected = Number(p.dataset.pick); render(); return; }
-      if (e.target.closest("[data-clear]")) { mapState.kind = mapState.id = mapState.selected = null; render(); }
+      if (p) { stopTour(); select(Number(p.dataset.pick), false); return; }
+      const g = e.target.closest("[data-go]");
+      if (g) { stopTour(); const [k, i] = g.dataset.go.split(":"); setFocus(k, i); return; }
+      if (e.target.closest("[data-clear]")) { stopTour(); mapState.kind = mapState.id = mapState.selected = null; render(); }
+    });
+    learnPanel.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-learn]");
+      if (b) { mapState.step = Math.max(0, Math.min(D.LEARN.length - 1, mapState.step + Number(b.dataset.learn))); render(); return; }
+      const s = e.target.closest("[data-step]");
+      if (s) { mapState.step = Number(s.dataset.step); render(); return; }
+      if (e.target.closest("[data-mode-go]")) setMode("explore");
     });
     render();
   }
@@ -522,7 +697,7 @@
     $$("#dets .det").forEach((d) => d.addEventListener("click", () => d.classList.toggle("clear")));
     $("#detAll").addEventListener("click", () => $$("#dets .det").forEach((d, i) => setTimeout(() => d.classList.add("clear"), i * 110)));
     const link = $("[data-select]");
-    if (link) link.addEventListener("click", () => { mapState.kind = mapState.id = null; mapState.selected = a.n; });
+    if (link) link.addEventListener("click", () => { mapState.kind = mapState.id = null; mapState.mode = "explore"; mapState.selected = a.n; });
   }
 
   /* ---------------------------------------------------------------- LAYERS */
@@ -739,6 +914,18 @@
     if (below + th > window.innerHeight - 8) tip.style.top = (r.top - th - 8) + "px";
   };
   const hideTip = () => { tip.hidden = true; };
+  const showTipAt = (x, y, html) => {
+    tip.innerHTML = html;
+    tip.hidden = false;
+    const w = Math.min(300, window.innerWidth - 32);
+    tip.style.maxWidth = w + "px";
+    const th = tip.offsetHeight, tw = tip.offsetWidth;
+    let left = x + 16, top = y + 18;
+    if (left + tw > window.innerWidth - 12) left = Math.max(12, x - tw - 16);
+    if (top + th > window.innerHeight - 12) top = Math.max(12, y - th - 14);
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
+  };
   document.addEventListener("mouseover", (e) => { const g = e.target.closest(".gloss"); if (g) showTip(g); });
   document.addEventListener("mouseout", (e) => { if (e.target.closest(".gloss")) hideTip(); });
   document.addEventListener("focusin", (e) => { const g = e.target.closest(".gloss"); if (g) showTip(g); });
