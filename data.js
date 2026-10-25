@@ -1,67 +1,125 @@
 /* =====================================================================
-   The Invisible Context: content model
-   Source of truth: IFAL Context Invisibility Map v0.2
-   (MAP/Updated document/IFAL_(v0.2).docx). Where v0.2 is silent, detail
-   comes from the SG1 evidence matrix (MAP/02-matrix.md). On conflict,
-   v0.2 wins. Reference numbers [1] to [6] follow the v0.2 reference list.
+   (In)Visible Health: shared content model
+   Source of truth: "EFMI LEAD - The Grand Challenge" (draft 2026-10-21),
+   the shared document of the three LEAD sub-groups. Lab-specific content
+   lives in data-ifal.js, data-bvdl.js and data-etl.js, which extend
+   window.LEAD. Reference numbers [1] to [73] follow the document's list.
    ===================================================================== */
 
-window.IFAL = (function () {
+window.LEAD = (function () {
 
   const META = {
-    title: "The Invisible Context",
-    subtitle: "A map of health context that information systems do not capture",
-    group: "EFMI LEAD 2026 · Sub-Group 1 · Invisible Failure Analysis Lab (IFAL)",
-    version: "Context Invisibility Map v0.2",
-    authors: ["Alessandra Introvaia", "Daniel Rodrigues", "Kirubel Biruk Shiferaw"],
+    title: "(In)Visible Health",
+    subtitle: "Tracing the unseen layers of health ecosystems",
+    challenge: "Invisible Context",
+    cohort: "EFMI LEAD cohort · yEFMI",
+    version: "The Grand Challenge, draft of 21 October 2026",
     question:
       "When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place?"
   };
 
   /* ------------------------------------------------------------------
-     The five layers of invisibility (v0.2, Table 1)
+     The cohort and its three labs (document front matter and the
+     "Tasks" and "Connections" boxes at the start of each section)
      ------------------------------------------------------------------ */
-  const LAYERS = [
+  const LABS = [
     {
-      id: "informational", n: 1, name: "Informational", color: "#3D7FE6",
-      question: "Is it recorded at all?",
-      short: "No practical way exists to record it.",
-      missing: "The determinant does not enter the record because there is no low-effort way to capture it.",
-      consequence: "The system cannot use information it never received, and the absence of data is read as absence of relevance.",
-      refs: [6, 2]
+      id: "ifal", n: 1, short: "IFAL", verb: "Diagnose",
+      name: "Invisible Failure Analysis Lab",
+      role: "Diagnostic engine",
+      question: "Which contextual determinants are most systematically invisible, and to whom?",
+      output: "Context Invisibility Map",
+      route: "#/ifal",
+      members: ["Alessandra Introvaia", "Daniel Alexandre Relvas Rodrigues", "Kirubel Biruk Shiferaw"],
+      tasks: [
+        "Diagnose the contextual determinants of human, animal and environmental health that are most systematically invisible to BMHI systems",
+        "Diagnose the actors to whom they are invisible",
+        "Diagnose the mechanisms by which they remain unseen"
+      ]
     },
     {
-      id: "semantic", n: 2, name: "Semantic", color: "#8A5CE0",
-      question: "Can other systems interpret it?",
-      short: "It is recorded, but not in a standard, computable form.",
-      missing: "The determinant is recorded as free text or a local checkbox, without a standard code.",
-      consequence: "The information cannot be exchanged across institutions or countries, used by decision support, or aggregated across patients.",
-      refs: [6, 4]
+      id: "bvdl", n: 2, short: "BVDL", verb: "Design",
+      name: "BMHI Visibility Design Lab",
+      role: "Technical conversion engine",
+      question: "What forms of BMHI visibility could capture them?",
+      output: "BMHI Visibility Hypothesis Board",
+      route: "#/bvdl",
+      members: ["Matthieu Bonjour", "Ivan Cerovečki", "Eliana Mendonça Almeida e Silva", "Simon Luca Lewerenz"],
+      tasks: [
+        "Define the technical, operational and semantic possibilities within BMHI systems to turn hidden determinants of human, animal and environmental health into visible, actionable contextual intelligence",
+        "Identify methods of data acquisition for relevant hidden contextual determinants",
+        "Describe actionable data-acquisition models, with particular regard to ODHness and architecture logic"
+      ]
     },
     {
-      id: "experiential", n: 3, name: "Experiential", color: "#E0921F",
-      question: "Is there a suitable field for it?",
-      short: "Lived experience does not fit structured fields.",
-      missing: "Lived experience, preferences and informal care arrangements: information that no existing structured field can hold.",
-      consequence: "Factors that influence adherence and outcomes are missing from the decision, even when the clinician would want them.",
-      refs: [1, 3]
-    },
-    {
-      id: "governance", n: 4, name: "Governance", color: "#2FA866",
-      question: "Can it cross the sector boundary?",
-      short: "The data exist, but in another sector's system.",
-      missing: "A legal, organisational and interoperable route that would allow existing data to cross a sector boundary.",
-      consequence: "Knowledge remains in separate, well-maintained systems, and shared learning across sectors and species does not take place.",
-      refs: [2, 6, 1]
-    },
-    {
-      id: "evaluative", n: 5, name: "Evaluative", color: "#D94C7C",
-      question: "Is it measured?",
-      short: "No outcome indicator includes it.",
-      missing: "An indicator that includes the determinant in the metrics that guide institutional behaviour.",
-      consequence: "Determinants that are not measured are not requested, so the gap persists.",
-      refs: [4, 5]
+      id: "etl", n: 3, short: "ETL", verb: "Translate",
+      name: "European Translation Lab",
+      role: "Strategic proposal engine",
+      question: "Why is this strategically European?",
+      output: "European Opportunity",
+      route: "#/etl",
+      members: ["Konstantinos Karitis", "Janne Kommusaar", "Maria Parra Rodriguez-Armijo"],
+      thanks: ["Josefin Hagström"],
+      tasks: [
+        "Identify the ways in which European collaboration and common action can address invisible health context",
+        "Define how the ODH dimensions can be put into operation, with particular regard to the ODH framework layers",
+        "Identify the European added value of the intellectual capital the cohort has built"
+      ]
     }
+  ];
+
+  // Hand-offs between labs, as stated in the document's "Connections" boxes
+  const CONNECTIONS = [
+    { from: "ifal", to: "bvdl", label: "Layers and archetypes of invisibility",
+      text: "IFAL passes on the five layers and five archetypes; BVDL gives each one a technical grounding." },
+    { from: "bvdl", to: "etl", label: "An implementable visibility infrastructure",
+      text: "BVDL passes on the data sources, mechanisms and standards; ETL tests whether they fit implementable European digital infrastructures." },
+    { from: "etl", to: "ifal", label: "Which invisibilities matter for Europe?",
+      text: "ETL returns prioritisation criteria so that IFAL's next iteration can confirm, reframe or deprioritise each invisibility." }
+  ];
+
+  const ACKNOWLEDGEMENTS = {
+    text: "The cohort thanks Lars Lindsköld for generous support, and Oscar Tamburis and Mihaela Crişan-Vida for guidance and mentorship.",
+    people: ["Lars Lindsköld", "Oscar Tamburis", "Mihaela Crişan-Vida"]
+  };
+
+  /* ------------------------------------------------------------------
+     The Grand Challenge (Foreword and Background)
+     ------------------------------------------------------------------ */
+  const CHALLENGE = {
+    timeline: [
+      { when: "October 2025", where: "Osnabrück, Germany",
+        text: "EFMI establishes the LEAD cohort at its Special Topic Conference: young professionals in Biomedical and Health Informatics from several European countries, learning together in a cohort with peers and experts." },
+      { when: "May 2026", where: "Genova, Italy",
+        text: "At the annual EFMI conference (MIE 2026) the cohort receives its Grand Challenge: design a way to detect, structure, integrate and act on health-relevant information that remains invisible to health systems, within One Digital Health." },
+      { when: "October 2026", where: "Shared draft",
+        text: "The three sub-groups assemble their outputs into one document, The Grand Challenge. It is a work in progress and will be updated." }
+    ],
+    examples: [
+      { text: "A patient is judged medically fit for discharge while their housing instability remains unrecorded.", a: 1 },
+      { text: "A follow-up interval is set without knowing whether the patient can reach the clinic.", a: 1 },
+      { text: "An oxygen-saturation reading looks reassuring, but the device was never calibrated for the patient's skin pigmentation.", a: 3 }
+    ],
+    absences: [
+      { layer: "informational", text: "a determinant that is never recorded" },
+      { layer: "semantic", text: "a determinant recorded in a form other systems cannot interpret" },
+      { layer: "experiential", text: "a determinant for which no structured field of suitable shape exists" },
+      { layer: "governance", text: "a determinant held in another sector's well-governed database" },
+      { layer: "evaluative", text: "a determinant that no outcome indicator measures" }
+    ],
+    domains: [
+      { name: "Human health", text: "Electronic health records and wearables" },
+      { name: "Animal health", text: "Veterinary records and agricultural data" },
+      { name: "Environment", text: "Remote sensing and sensor networks" }
+    ]
+  };
+
+  // LEAD as a cybernetic learning loop (from the bootcamp design)
+  const LEAD_PHASES = [
+    { name: "Problem framing", text: "Name the problem precisely: which context is missing, for whom, and why." },
+    { name: "Informational capitalisation", text: "Turn scattered evidence into shared, structured knowledge the cohort can build on." },
+    { name: "Systemic negotiation", text: "Confront the diagnosis with what information systems, standards and organisations can actually do." },
+    { name: "Translational solution building", text: "Turn the result into a proposal that can travel: European collaboration, funding and education." }
   ];
 
   /* ------------------------------------------------------------------
@@ -117,332 +175,108 @@ window.IFAL = (function () {
     { step: 5, title: "The five archetypes", text: "This map places the five archetypes of invisible context on the technology ring. Each describes a connection that does not work, so that relevant context does not reach the decision. Select an archetype to see the perspectives and dimensions it involves.", ref: 1 }
   ];
 
-  const CLUSTERS = [
-    { id: "capture", name: "Capture-surface", archetypes: [1, 2, 4],
-      text: "The information is not entered in the record." },
-    { id: "boundary", name: "System-boundary", archetypes: [3, 5],
-      text: "The data exist in structured form but do not cross a boundary: the training data of an algorithm, or the governance arrangements of another sector." }
-  ];
-
-  /* ------------------------------------------------------------------
-     The five archetypes (v0.2 Table 2 + decision failures)
-     wheel: angle (deg) of the marker on the technology ring
-     stats: value null = qualitative finding (no figure reported)
-     ------------------------------------------------------------------ */
-  const ARCHETYPES = [
-    {
-      n: 1, id: "sdoh",
-      name: "SDOH Documentation Gap",
-      plain: "Social circumstances not recorded",
-      tagline: "Housing, food security and transport affect outcomes, but are rarely documented in a structured way in the EHR.",
-      color: "#1F5FBF",
-      layers: ["informational", "semantic"],
-      perspectives: ["individual", "population"],
-      spillover: [],
-      dimensions: ["citizens", "humanvet"],
-      cluster: "capture",
-      wheel: { angle: 30 },
-      summary:
-        "Social determinants that clinicians consider clinically important (housing, food security, transport, financial stability, childcare) are not routinely captured, mainly because the EHR offers no simple structured way to record them. Survey data indicate that the gap reflects the structure of the record more than a lack of clinical awareness.",
-      stats: [
-        { value: "18.2%", label: "consistently document housing instability", note: "among providers who consider it clinically vital", ref: 6 },
-        { value: "16.4%", label: "consistently document food insecurity", note: "among providers who consider it clinically vital", ref: 6 },
-        { value: "22.7%", label: "consistently document transport access", note: "among providers who consider it clinically vital", ref: 6 },
-        { value: "14.8×", label: "higher odds of consistently documenting any social determinant than any environmental determinant", ref: 6 }
-      ],
-      failures: [
-        { title: "Discharge planning without housing information",
-          text: "A patient assessed as medically stable is discharged. Housing insecurity, which predicts the subsequent readmission, is not in the chart.",
-          ref: [6] },
-        { title: "Insulin regimen without food-security information",
-          text: "An insulin regimen is designed on the assumption of regular meal times, for a patient who is food-insecure.",
-          ref: [6] },
-        { title: "Follow-up scheduling without transport information",
-          text: "A follow-up interval is set on the assumption that the patient can travel to the clinic. Missed appointments are then recorded as non-compliance rather than as a problem of access.",
-          ref: [6] }
-      ],
-      determinants: ["Housing stability", "Food security", "Transportation access", "Financial stability", "Childcare availability", "Personal safety", "Refugee status", "Access to firearms"],
-      mechanism: {
-        informational: "Many social determinants have no structured field, or the field sits outside the usual workflow. Ease of charting is associated with whether a determinant is captured.",
-        semantic: "When social context is recorded, it is often in free text or local checkboxes without standard codes. It then cannot be aggregated across institutions, used by decision support, or exchanged between systems. Smoking status, the one social determinant with a long-established structured field, is documented consistently by a substantial majority of providers."
-      },
-      refs: [6]
-    },
-    {
-      n: 2, id: "environment",
-      name: "Environmental Determinant Blindness",
-      plain: "Environmental exposures not recorded",
-      tagline: "Exposure to air pollution, water contamination, household toxins and extreme weather is seldom documented in clinical records or reflected in institutional indicators.",
-      color: "#2E8B4A",
-      layers: ["informational", "evaluative"],
-      perspectives: ["population", "ecosystem"],
-      spillover: [],
-      dimensions: ["environment", "industry"],
-      cluster: "capture",
-      wheel: { angle: -40 },
-      summary:
-        "Environmental exposures are relevant to clinical and public-health decisions, but they are largely absent from clinical records and from the indicators by which health institutions are assessed. Documentation of environmental determinants is considerably lower than that of social determinants.",
-      stats: [
-        { value: "<5%", label: "of providers consistently document any environmental determinant", note: "excluding infectious-disease outbreaks", ref: 6 },
-        { value: "31%", label: "consistently document infectious-disease outbreaks, the only exception", ref: 6 },
-        { value: "18.4%", label: "consider any environmental determinant easy to chart", note: "compared with 68.2% for social determinants", ref: 6 }
-      ],
-      failures: [
-        { title: "Paediatric asthma triage without air-quality data",
-          text: "A paediatric asthma exacerbation is triaged on clinical signs alone; air quality at the patient's place of residence is not part of the record.",
-          ref: [6] },
-        { title: "Perinatal counselling without exposure history",
-          text: "Perinatal counselling takes place without any history of water contamination or household toxin exposure.",
-          ref: [6] }
-      ],
-      determinants: ["Ambient air quality", "Drinking-water quality", "Household toxins", "Extreme-weather exposure", "Infectious-disease outbreaks (partly)", "Heat and cold events", "Antimicrobial resistance in the local environment", "Disease vectors", "Biodiversity and ecosystem indicators"],
-      mechanism: {
-        informational: "Environmental data are held in environmental-monitoring systems, not in health records, and there is no routine route by which they enter the clinical record. Providers also report that environmental determinants are difficult to chart.",
-        evaluative: "The outcomes used to assess hospitals (readmissions, mortality, length of stay) are not adjusted for environmental exposure. Even if exposure data were captured, they would not appear in the metrics that guide institutional behaviour, so there is little demand for them."
-      },
-      refs: [6, 2]
-    },
-    {
-      n: 3, id: "algorithmic",
-      name: "Algorithmic Data Poverty",
-      plain: "Groups under-represented in device and algorithm data",
-      tagline: "Devices and algorithms developed on some populations perform less accurately for others, and this is rarely measured after deployment.",
-      color: "#7A4FC0",
-      layers: ["semantic", "evaluative"],
-      perspectives: ["individual", "population"],
-      spillover: [],
-      dimensions: ["industry"],
-      cluster: "boundary",
-      wheel: { angle: 168 },
-      summary:
-        "Devices and algorithms are developed and validated on particular populations. Patients outside those populations are present in the clinical encounter but misrepresented in the computational model. These digital determinants of health, including data poverty, algorithmic bias and accessibility, tend to reinforce existing inequities.",
-      stats: [
-        { value: "11 to 19%", label: "lower accuracy of recognition systems for Black women", ref: 4 },
-        { value: null, label: "Pulse oximetry overestimates oxygen saturation in patients with darker skin pigmentation.", ref: 4 }
-      ],
-      failures: [
-        { title: "Delayed escalation due to pulse-oximetry overestimation",
-          text: "Escalation of COVID-19 treatment is delayed because pulse oximetry overestimates oxygen saturation in a patient with darker skin pigmentation.",
-          ref: [4] },
-        { title: "Lower performance of AI-assisted imaging",
-          text: "AI-assisted imaging performs less well for populations that were under-represented in the training data.",
-          ref: [4, 5] },
-        { title: "Telemedicine triage that excludes sensory impairment",
-          text: "A video-first telemedicine triage pathway excludes patients with hearing or visual impairment.",
-          ref: [4, 5] }
-      ],
-      closing: "In these cases the issue is not clinical judgement: the patient is misrepresented in the data on which the system was developed.",
-      determinants: ["Algorithmic bias", "Data poverty", "Information asymmetry", "Accessibility (visual, hearing, motor, cognitive)", "Digital literacy", "Affordability of devices and connectivity", "Digital availability", "Technology personalisation"],
-      mechanism: {
-        semantic: "The patient is represented incorrectly in the model, either because they are absent from the training data or because they are treated as an outlier. Pulse oximetry, for example, does not calibrate for skin pigmentation.",
-        evaluative: "Performance for specific population groups is rarely reported alongside overall accuracy, and post-deployment evaluation is uncommon. Bias therefore goes undetected because it is not measured."
-      },
-      refs: [4, 5]
-    },
-    {
-      n: 4, id: "narrative",
-      name: "Patient Narrative Absence",
-      plain: "Patient preferences and care context not captured",
-      tagline: "Treatment preferences, lived experience and informal care arrangements have no suitable structured field and are often unavailable when decisions are made.",
-      color: "#D98014",
-      layers: ["experiential"],
-      perspectives: ["individual"],
-      spillover: ["population"],
-      dimensions: ["citizens", "education"],
-      cluster: "capture",
-      wheel: { angle: 118 },
-      summary:
-        "Preferences, lived experience and informal care arrangements are difficult to represent in structured fields. Free text may exist, but it is not reliably retrievable at the time of decision, so this information is often lost at handovers between care settings.",
-      stats: [
-        { value: null, label: "The evidence for this archetype is qualitative: loss of patient narrative is identified as a driver of unsafe and inequitable decisions.", ref: 1 },
-        { value: null, label: "Systems modelling describes the pattern as an unlinked decision within the continuity-of-care process.", ref: 3 }
-      ],
-      failures: [
-        { title: "Escalation contrary to an unrecorded preference",
-          text: "An intensive-care team escalates ventilation for a patient who had expressed a preference for comfort-only care months earlier, in an outpatient consultation. The preference was not recorded in structured form.",
-          ref: [1, 3] },
-        { title: "Care plan that omits the informal caregiver",
-          text: "A heart-failure management plan assumes a self-managing patient who in fact depends on a daughter with two jobs. The caregiver is not documented in any information system.",
-          ref: [1, 3] }
-      ],
-      determinants: ["Treatment preferences and goals of care", "Lived-experience symptom narrative", "Informal caregiver presence, capacity and limits", "Personal meaning of the illness", "Health literacy and the patient's own explanation of the illness", "Cultural and spiritual context", "Economic constraints described by the patient"],
-      mechanism: {
-        experiential: "Structured fields reduce narrative to predefined categories. Unlike the SDOH gap, the issue is not the absence of a field but the absence of a field of suitable form. Free text exists, but it cannot be retrieved reliably at decision time, so in practice it is unavailable. Systems modelling describes this as an unlinked decision in the continuity of care."
-      },
-      refs: [1, 3]
-    },
-    {
-      n: 5, id: "silos",
-      name: "Cross-Sector Governance Silos",
-      plain: "Data held in other sectors",
-      tagline: "Veterinary, environmental, public-health and cross-border data exist and are maintained, but there is no established route for them to reach clinical decisions.",
-      color: "#C23A6B",
-      layers: ["governance"],
-      perspectives: ["ecosystem", "population"],
-      spillover: [],
-      dimensions: ["humanvet", "environment"],
-      cluster: "boundary",
-      wheel: { angle: -100 },
-      summary:
-        "In this archetype the data are not missing. They exist, are structured and are maintained in a veterinary, agricultural, environmental or foreign health system. What is missing is the legal, organisational and technical route that would allow them to reach the clinical decision.",
-      stats: [
-        { value: null, label: "During the COVID-19 pandemic, fragmented surveillance data meant that public-health decisions were based on partial information.", ref: 1 },
-        { value: null, label: "Ecosystem-scale signals remain outside the current clinical data-capture surface.", ref: 2 }
-      ],
-      failures: [
-        { title: "Animal-health signals not reaching public health",
-          text: "Livestock mortality and wildlife die-offs are recorded in veterinary and agricultural information systems that do not reach human public-health decision-makers.",
-          ref: [2] },
-        { title: "Immunisation history held in another member state",
-          text: "The immunisation history of a migrant patient is held in the health system of another member state and is not available to the treating clinician.",
-          ref: [1, 2] },
-        { title: "Environmental alert not reaching primary care",
-          text: "A regional water-contamination event known to the environmental authority does not generate an alert in local primary care.",
-          ref: [1, 2] }
-      ],
-      closing: "In each case the data exist and are maintained; what is missing is a route to the clinical decision.",
-      determinants: ["Veterinary surveillance signals", "Zoonotic disease indicators", "Environmental-agency exposure alerts", "Cross-border patient records", "Social-services information held by municipalities", "Public-health intelligence held outside clinical systems"],
-      mechanism: {
-        governance: "The data themselves are complete and maintained. The barrier is the absence of a legal, organisational and interoperability route across sector boundaries."
-      },
-      refs: [2, 1]
-    }
-  ];
-
-  /* ------------------------------------------------------------------
-     Affected stakeholders (v0.2 "Distribution of the burden" + matrix)
-     ------------------------------------------------------------------ */
-  const STAKEHOLDERS = [
-    {
-      id: "patients", name: "Patients and families",
-      intro: "The burden of missing context is concentrated among groups that are already disadvantaged.",
-      items: [
-        { name: "Low-income and food-insecure households", a: [1, 3] },
-        { name: "People in rural or transport-poor areas", a: [1, 3, 5] },
-        { name: "Recent immigrants and refugees", a: [1, 3, 5] },
-        { name: "Residents of polluted and climate-vulnerable areas", a: [2, 5] },
-        { name: "Children with respiratory disease", a: [2] },
-        { name: "Outdoor workers and communities near industrial sites", a: [2] },
-        { name: "People with sensory, motor or cognitive impairment", a: [3] },
-        { name: "Older adults with limited digital literacy", a: [3] },
-        { name: "Patients outside the populations on which devices and algorithms were validated", a: [3] },
-        { name: "Patients whose care depends on an informal caregiver", a: [4] },
-        { name: "Family caregivers", a: [4] },
-        { name: "People with complex chronic, mental-health or palliative-care needs", a: [4] },
-        { name: "People who work with livestock or live near wildlife", a: [5] }
-      ]
-    },
-    {
-      id: "clinicians", name: "Clinicians",
-      intro: "For health professionals, missing context means making decisions with information they know to be incomplete.",
-      items: [
-        { name: "Primary-care providers", a: [1, 4, 5] },
-        { name: "Discharge planners and case managers", a: [1, 4] },
-        { name: "Pulmonologists, paediatricians and occupational-medicine specialists, who obtain environmental data through informal channels", a: [2] },
-        { name: "Clinicians using AI-assisted tools and devices, without means to detect their biases", a: [3] },
-        { name: "Palliative-care, psychiatry and paediatric teams, for whom loss of narrative is most evident at handover", a: [4] },
-        { name: "Social workers and community health workers", a: [4] },
-        { name: "Public-health and infectious-disease practitioners, and veterinarians working in One Health", a: [2, 5] }
-      ]
-    },
-    {
-      id: "institutions", name: "Institutions",
-      intro: "Institutions absorb the consequences as costs that are not attributed to missing context.",
-      items: [
-        { name: "Safety-net hospitals, which absorb the readmissions", a: [1] },
-        { name: "Payers under value-based contracts, which absorb the variance", a: [1] },
-        { name: "Public-health agencies, which hold data whose clinical value they cannot deliver", a: [2, 5] },
-        { name: "Environmental-monitoring agencies", a: [2, 5] },
-        { name: "Device and AI manufacturers, regulators and accreditation bodies", a: [3] },
-        { name: "Veterinary surveillance bodies and social-services departments", a: [5] },
-        { name: "Cross-border health-information exchanges", a: [5] }
-      ]
-    },
-    {
-      id: "ecosystem", name: "Ecosystem",
-      intro: "At ecosystem level, environmental, veterinary and public-health knowledge is maintained in parallel to clinical care, with few connections to it.",
-      items: [
-        { name: "The One Health community", a: [2, 5] },
-        { name: "Environmental epidemiologists and climate-health researchers", a: [2] },
-        { name: "Communities whose social data are not aggregated into population-level knowledge", a: [1] },
-        { name: "Patient-reported experience that could inform population-level decisions but is not captured", a: [4] }
-      ]
-    }
-  ];
-
-  /* ------------------------------------------------------------------
-     Mechanisms of persistence (v0.2 "Mechanisms")
-     ------------------------------------------------------------------ */
-  const MECHANISMS = [
-    { name: "Capture friction", layers: ["informational"], ref: [6],
-      text: "A determinant may be clinically relevant but remain unrecorded because there is no suitable structured field, screening routine or low-effort documentation pathway. Perceived importance does not automatically lead to consistent documentation." },
-    { name: "Semantic fragmentation", layers: ["semantic"], ref: [3],
-      text: "Information is recorded as free text, local categories or heterogeneous formats that cannot be reliably interpreted, exchanged or reused across time and care settings." },
-    { name: "Representational exclusion", layers: ["semantic", "evaluative"], ref: [4, 5],
-      text: "Devices and algorithms are developed and validated on populations that differ from those in which they are used. Data poverty and algorithmic design can reinforce existing inequities." },
-    { name: "Boundary and incentive failures", layers: ["experiential", "governance", "evaluative"], ref: [1, 2],
-      text: "Patient experience remains in conversation or informal communication; environmental, public-health and veterinary data remain in separate institutional systems. Governance restrictions, organisational separation and missing outcome indicators keep this knowledge out of the decision process." }
-  ];
-
-  const CHAIN = [
-    "Not captured",
-    "Not standardised",
-    "Not linked",
-    "Not evaluated",
-    "Not prioritised"
-  ];
-
-  /* ------------------------------------------------------------------
-     Home: an illustrative composite decision (labelled as such)
-     ------------------------------------------------------------------ */
-  const STORY = {
-    patient: "Illustrative example · patient aged 71 · heart failure · recovering from COVID-19",
-    decision: "Decision: discharge home",
-    rows: [
-      { field: "Clinical status", shown: "Medically stable", a: 1,
-        hidden: "Housing is insecure, but this is not recorded. Among providers who consider housing clinically vital, 18.2% document it consistently." },
-      { field: "Oxygen saturation", shown: "94%", a: 3,
-        hidden: "Pulse oximetry overestimates oxygen saturation in patients with darker skin pigmentation, so the true value may be lower." },
-      { field: "Care at home", shown: "Self-manages medication", a: 4,
-        hidden: "The patient depends on a daughter who works two jobs, and had previously expressed a preference for comfort-focused care. Neither is recorded in structured form." },
-      { field: "Exposure history", shown: "Not recorded", a: 2,
-        hidden: "The patient lives in an area with poor air quality. Fewer than 5% of providers consistently document any environmental determinant other than outbreaks." },
-      { field: "Active alerts", shown: "None", a: 5,
-        hidden: "The environmental authority is aware of a regional water-contamination event, but no alert reaches primary care." }
-    ],
-    moral: "In this example the clinical reasoning is sound, but information that determines the outcome is not available at the point of decision. The Context Invisibility Map describes five recurring patterns of this kind."
-  };
-
   const GLOSSARY = {
     EHR: "Electronic Health Record: the digital record in which clinicians document patient information.",
     SDOH: "Social Determinants of Health: the conditions in which people are born, live and work (housing, food, income, transport) that influence their health.",
     BMHI: "Biomedical and Health Informatics: the science and practice of health data, information systems and digital tools.",
     ODH: "One Digital Health: a framework that combines Digital Health with One Health (human, animal and environmental health as one system).",
     "One Health": "An approach that treats human, animal and environmental health as interconnected and manages them together.",
-    "digital determinants": "Digital determinants of health: factors such as data poverty, algorithmic bias, digital literacy and access to technology that influence health outcomes."
+    "digital determinants": "Digital determinants of health: factors such as data poverty, algorithmic bias, digital literacy and access to technology that influence health outcomes.",
+    ODHness: "The degree to which a digital ecosystem integrates human, animal and environmental data into one coherent framework for health intelligence. BVDL proposes it as a measure of visibility maturity.",
+    FAIR: "Findable, Accessible, Interoperable and Reusable: four principles for managing data so that people and machines can find and reuse it.",
+    FHIR: "HL7 Fast Healthcare Interoperability Resources: an open standard for exchanging health data between systems through web APIs.",
+    "SNOMED CT": "A large clinical terminology that gives each clinical concept (findings, procedures, social circumstances) a unique code that computers can interpret.",
+    LOINC: "Logical Observation Identifiers Names and Codes: a standard set of codes for laboratory tests and clinical observations.",
+    EHDS: "European Health Data Space: the EU regulation (2025/327) that sets common rules for using and exchanging electronic health data across member states.",
+    PROM: "Patient-Reported Outcome Measure: a questionnaire in which patients report their own health status, symptoms or function.",
+    PREM: "Patient-Reported Experience Measure: a questionnaire in which patients report their experience of care.",
+    NLP: "Natural Language Processing: computational methods that extract structured information from free text.",
+    LLM: "Large Language Model: an AI model trained on large amounts of text that can read, summarise and generate language.",
+    API: "Application Programming Interface: a defined way for one software system to request data or services from another.",
+    "AI Act": "The EU Artificial Intelligence Act (Regulation 2024/1689). It classifies most medical AI as high-risk and requires high-quality, representative data and human oversight.",
+    GDPR: "The EU General Data Protection Regulation (2016/679), which governs the processing of personal data.",
+    "COST Action": "A four-year European research network funded by COST. It pays for networking (meetings, training schools, short research visits), not for research itself.",
+    "Erasmus+": "The EU programme for education, training, youth and sport. Its Cooperation Partnerships fund organisations from several countries to develop and share educational practice.",
+    "federated learning": "A way to train a model across several data holders without moving the data: each site trains locally and only model updates are shared.",
+    LEAD: "EducationaL EFMI Assembly Designed for BMHI: a cohort of young BMHI professionals set up by yEFMI as a cybernetic learning framework for future leaders."
   };
 
   const REFERENCES = [
-    { n: 1, short: "Alizadeh et al., 2025",
-      text: "Alizadeh M, Azizi N, Mahdavi S, Baghlani F. Unveiling the shadows: obstacles, consequences, and challenges of information opacity in healthcare systems. Philos Ethics Humanit Med. 2025;20:6.",
-      doi: "10.1186/s13010-025-00170-6" },
-    { n: 2, short: "Benis et al., 2021",
-      text: "Benis A, Tamburis O, Chronaki C, Moen A. One Digital Health: A Unified Framework for Future Health Ecosystems. J Med Internet Res. 2021;23(2):e22189.",
-      doi: "10.2196/22189" },
-    { n: 3, short: "Champion et al., 2019",
-      text: "Champion C, Kuziemsky C, Affleck E, Alvarez GG. A systems approach for modeling health information complexity. Int J Inf Manage. 2019;49:343–354.",
-      doi: "10.1016/j.ijinfomgt.2019.07.002" },
-    { n: 4, short: "Chidambaram et al., 2024",
-      text: "Chidambaram S, Jain B, Jain U, Mwavu R, Baru R, Thomas B, et al. An introduction to digital determinants of health. PLOS Digit Health. 2024;3(1):e0000346.",
-      doi: "10.1371/journal.pdig.0000346" },
-    { n: 5, short: "Fraser et al., 2023",
-      text: "Fraser HS, Marcelo A, Kalla M, Kalua K, Celi LA, Ziegler J. Digital determinants of health: Editorial. PLOS Digit Health. 2023;2(11):e0000373.",
-      doi: "10.1371/journal.pdig.0000373" },
-    { n: 6, short: "Sood et al., 2024",
-      text: "Sood N, Stetter C, Kunselman A, Jasani S. The relationship between perceptions of electronic health record usability and clinical importance of social and environmental determinants of health on provider documentation. PLOS Digit Health. 2024;3(1):e0000428.",
-      doi: "10.1371/journal.pdig.0000428" }
+    {"n": 1, "short": "Alizadeh et al., 2025", "text": "Alizadeh M, Azizi N, Mahdavi S, Baghlani F. Unveiling the shadows: obstacles, consequences, and challenges of information opacity in healthcare systems. Philos Ethics Humanit Med. 2025;20:6.", "url": "https://doi.org/10.1186/s13010-025-00170-6"},
+    {"n": 2, "short": "Benis et al., 2021", "text": "Benis A, Tamburis O, Chronaki C, Moen A. One Digital Health: A Unified Framework for Future Health Ecosystems. J Med Internet Res. 2021;23(2):e22189.", "url": "https://doi.org/10.2196/22189"},
+    {"n": 3, "short": "Champion et al., 2019", "text": "Champion C, Kuziemsky C, Affleck E, Alvarez GG. A systems approach for modeling health information complexity. Int J Inf Manage. 2019;49:343–354.", "url": "https://doi.org/10.1016/j.ijinfomgt.2019.07.002"},
+    {"n": 4, "short": "Sood et al., 2024", "text": "Sood N, Stetter C, Kunselman A, Jasani S. The relationship between perceptions of electronic health record usability and clinical importance of social and environmental determinants of health on provider documentation. PLOS Digit Health. 2024;3(1):e0000428.", "url": "https://doi.org/10.1371/journal.pdig.0000428"},
+    {"n": 5, "short": "Chidambaram et al., 2024", "text": "Chidambaram S, Jain B, Jain U, Mwavu R, Baru R, Thomas B, et al. An introduction to digital determinants of health. PLOS Digit Health. 2024;3(1):e0000346.", "url": "https://doi.org/10.1371/journal.pdig.0000346"},
+    {"n": 6, "short": "Fraser et al., 2023", "text": "Fraser HS, Marcelo A, Kalla M, Kalua K, Celi LA, Ziegler J. Digital determinants of health: Editorial. PLOS Digit Health. 2023;2(11):e0000373.", "url": "https://doi.org/10.1371/journal.pdig.0000373"},
+    {"n": 7, "short": "Denecke et al., 2023", "text": "Denecke K, Romero OR, Merolli M, Miron-Shatz T, Gabarron E, Petersen C. How Participatory Health Informatics Catalyzes One Digital Health. Yearb Med Inform. 2023;32(1):48-54.", "url": "https://doi.org/10.1055/s-0043-1768727"},
+    {"n": 8, "short": "Benis et al., 2023", "text": "Benis A, Haghi M, Deserno TM, Tamburis O. One Digital Health Intervention for Monitoring Human and Animal Welfare in Smart Cities: Viewpoint and Use Case. JMIR Med Inform. 2023;11:e43871.", "url": "https://doi.org/10.2196/43871"},
+    {"n": 9, "short": "Kirtchuk & Wylie, 2021", "text": "Kirtchuk L, Wylie A. Social and environmental determinants of health. In: Short E. A prescription for healthy living: a guide to lifestyle medicine. London, United Kingdom; San Diego, Ca, United States: Academic Press, An Imprint Of Elsevier; 2021.", "url": null},
+    {"n": 10, "short": "Kelly & Fussell, 2015", "text": "Kelly FJ, Fussell JC. Air pollution and public health: emerging hazards and improved understanding of risk. Environ Geochem Health. 2015 Aug;37(4):631-49.", "url": "https://doi.org/10.1007/s10653-015-9720-1"},
+    {"n": 11, "short": "Harrison & Dean, 2011", "text": "Harrison KM, Dean HD. Use of data systems to address social determinants of health: a need to do more. Public Health Rep. 2011 Sep-Oct;126 Suppl 3(Suppl 3):1-5.", "url": "https://doi.org/10.1177/00333549111260S301"},
+    {"n": 12, "short": "WHO, Global strategy on digital health", "text": "World Health Organization. Global strategy on digital health 2020–2025. Geneva: World Health Organization; 2024.", "url": null},
+    {"n": 13, "short": "Mac-Seing et al., 2019", "text": "Mac-Seing M, Le Nogue D, Bagayoko CO, Sy A, Dumas J, Dunbar W, et al. Make visible the invisible: innovative strategies for the future of global health. BMJ Global Health. 2019;4:e001693.", "url": "https://doi.org/10.1136/bmjgh-2019-001693"},
+    {"n": 14, "short": "Ott, 2025", "text": "Ott T. Invisibility and Exposure: Challenges of Using AI in Healthcare [Unsichtbarkeit und Exponiertheit: Herausforderungen der Nutzung von KI im Gesundheitssystem]. Zeitschrift für medizinische Ethik, 2025;71(4):488-499.", "url": "https://doi.org/10.30965/29498570-20250143"},
+    {"n": 15, "short": "WHO-FIC Interoperability Hub", "text": "World Health Organization. WHO-FIC Interoperability Hub [Internet]. Geneva: World Health Organization; 2019 [cited 2026 Sep 9].", "url": "https://www.who.int/standards/classifications/who-fic-interoperability-hub"},
+    {"n": 16, "short": "WHO and HL7, 2023", "text": "World Health Organization. WHO and HL7 collaborate to support adoption of open interoperability standards [Internet]. Geneva: World Health Organization; 2023 [cited 2026 Sep 9].", "url": "https://www.who.int/news/item/03-07-2023-who-and-hl7-collaborate-to-support-adoption-of-open-interoperability-standards"},
+    {"n": 17, "short": "Bodenreider et al., 2018", "text": "Bodenreider O, Cornet R, Vreeman DJ. Recent Developments in Clinical Terminologies - SNOMED CT, LOINC, and RxNorm. Yearb Med Inform. 2018 Aug;27(1):129-139.", "url": "https://doi.org/10.1055/s-0038-1667077"},
+    {"n": 18, "short": "Vorisek et al., 2022", "text": "Vorisek CN, Lehne M, Klopfenstein SAI, Mayer PJ, Bartschke A, Haese T, Thun S. Fast Healthcare Interoperability Resources (FHIR) for Interoperability in Health Research: Systematic Review. JMIR Med Inform. 2022 Jul 19;10(7):e35724.", "url": "https://doi.org/10.2196/35724"},
+    {"n": 19, "short": "Kwong et al., 2019", "text": "Kwong M, Gardner HL, Dieterle N, Rentko V. Optimization of Electronic Medical Records for Data Mining Using a Common Data Model. Top Companion Anim Med. 2019 Dec;37:100364.", "url": "https://doi.org/10.1016/j.tcam.2019.100364"},
+    {"n": 20, "short": "WHO, Digital Transformation Handbook", "text": "World Health Organization. Digital Transformation Handbook for Primary Health Care: Optimizing Person-centred Point of Service Systems. Geneva: World Health Organization; 2024.", "url": null},
+    {"n": 21, "short": "WHO SMART Guidelines", "text": "World Health Organization. SMART Guidelines [Internet]. Geneva: World Health Organization; [cited 2026 Sep 9].", "url": "https://www.who.int/teams/digital-health-and-innovation/smart-guidelines"},
+    {"n": 22, "short": "Tumulak et al., 2024", "text": "Tumulak A, Tin J, Keshavjee K. Towards a Unified Framework for Information and Interoperability Governance. Stud Health Technol Inform. 2024 Feb 19;312:49-53.", "url": "https://doi.org/10.3233/SHTI231310"},
+    {"n": 23, "short": "Marmot et al., 2012", "text": "Marmot M, Allen J, Bell R, Bloomer E, Goldblatt P. WHO European review of social determinants of health and the health divide. Lancet. 2012;380(9846):1011-29.", "url": "https://doi.org/10.1016/S0140-6736(12)61228-8"},
+    {"n": 24, "short": "Anastasiadou et al., 2025", "text": "Anastasiadou O, Mpogiatzidis P, Tzimourta KD, Angelidis P. Digital Divide: Contrasting Provider and User Insights on Healthcare Services During the COVID-19 Pandemic. Healthcare (Basel). 2025 Jul 25;13(15):1803.", "url": "https://doi.org/10.3390/healthcare13151803"},
+    {"n": 25, "short": "Mackenzie & Jeggo, 2019", "text": "Mackenzie JS, Jeggo M. The One Health Approach-Why Is It So Important? Trop Med Infect Dis. 2019 May 31;4(2):88.", "url": "https://doi.org/10.3390/tropicalmed4020088"},
+    {"n": 26, "short": "Destoumieux-Garzón et al., 2018", "text": "Destoumieux-Garzón D, Mavingui P, Boetsch G, Boissier J, Darriet F, Duboz P, et al. The One Health concept: 10 years old and a long road ahead. Front Vet Sci. 2018;5:14.", "url": "https://doi.org/10.3389/fvets.2018.00014"},
+    {"n": 27, "short": "Jones et al., 2008", "text": "Jones KE, Patel NG, Levy MA, Storeygard A, Balk D, Gittleman JL, Daszak P. Global trends in emerging infectious diseases. Nature. 2008;451(7181):990-3.", "url": "https://doi.org/10.1038/nature06536"},
+    {"n": 28, "short": "Landrigan et al., 2018", "text": "Landrigan PJ, Fuller R, Acosta NJR, Adeyi O, Arnold R, Baldé AB, et al. The Lancet Commission on pollution and health. Lancet. 2018;391(10119):462-512.", "url": "https://doi.org/10.1016/S0140-6736(17)32345-0"},
+    {"n": 29, "short": "Whitmee et al., 2015", "text": "Whitmee S, Haines A, Beyrer C, Boltz F, Capon AG, Dias BF, et al. Safeguarding human health in the Anthropocene epoch: Report of the Rockefeller Foundation-Lancet Commission on planetary health. Lancet. 2015;386(10007):1973-2028.  2015 Nov 14;386(10007):1944.", "url": "https://doi.org/10.1016/S0140-6736(15)60901-1"},
+    {"n": 30, "short": "Romanello et al., 2023", "text": "Romanello M, McGushin A, Di Napoli C, Drummond P, Hughes N, Jamart L, et al. The 2023 report of the Lancet Countdown on health and climate change. Lancet. 2023;402(10419):2346-94.", "url": "https://doi.org/10.1016/S0140-6736(23)01859-7"},
+    {"n": 31, "short": "Coravos et al., 2019", "text": "Coravos A, Khozin S, Mandl KD. Developing and adopting safe and effective digital biomarkers to improve patient outcomes. NPJ Digit Med. 2019;2:14.  2019 May 10;2:40.", "url": "https://doi.org/10.1038/s41746-019-0090-4"},
+    {"n": 32, "short": "Fuller et al., 2020", "text": "Fuller A, Fan Z, Day C, Barlow C. Digital twin: Enabling technologies, challenges and open research. IEEE Access. 2020;8:108952-71.", "url": "https://doi.org/10.1109/ACCESS.2020.2998358"},
+    {"n": 33, "short": "Solar & Irwin, 2010", "text": "Solar O, Irwin A. A Conceptual Framework for Action on the Social Determinants of Health. Geneva: World Health Organization; 2010.", "url": null},
+    {"n": 34, "short": "Jordan et al., 2022", "text": "Jordan S, Fontaine C, Hendricks-Sturrup R. Selecting Privacy-Enhancing Technologies for Managing Health Data Use. Front. Public Health 2022 Mar 16;10:814163.", "url": "https://doi.org/10.3389/fpubh.2022.814163"},
+    {"n": 35, "short": "Pentland, 2014", "text": "Pentland A. Social Physics: How Social Networks Can Make Us Smarter. New York: Penguin Press; 2014.", "url": null},
+    {"n": 36, "short": "Rocher et al., 2019", "text": "Rocher L, Hendrickx JM, de Montjoye YA. Estimating the success of re-identifications in incomplete datasets using generative models. Nat Commun. 2019;10:3069.", "url": "https://doi.org/10.1038/s41467-019-10933-3"},
+    {"n": 37, "short": "Kalkman et al., 2022", "text": "Kalkman S, van Delden J, Banerjee A, Tyl B, Mostert M, van Thiel G. Patients’ and public views and attitudes towards the sharing of health data for research: a narrative review of the empirical evidence. J Med Ethics. 2022;48(1):3-13.", "url": "https://doi.org/10.1136/medethics-2019-105651"},
+    {"n": 38, "short": "Vayena et al., 2018", "text": "Vayena E, Blasimme A, Cohen IG. Machine learning in medicine: Addressing ethical challenges. PLoS Med. 2018;15(11):e1002689.", "url": "https://doi.org/10.1371/journal.pmed.1002689"},
+    {"n": 39, "short": "Rieke et al., 2020", "text": "Rieke N, Hancox J, Li W, Milletari F, Roth HR, Albarqouni S, et al. The future of digital health with federated learning. NPJ Digit Med. 2020;3:119.", "url": "https://doi.org/10.1038/s41746-020-00323-1"},
+    {"n": 40, "short": "Floridi, 2016", "text": "Floridi L. Faultless responsibility: on the nature and allocation of moral responsibility for distributed moral actions. Philos Trans A Math Phys Eng Sci. 2016 Dec 28;374(2083):20160112.", "url": "https://doi.org/10.1098/rsta.2016.0112"},
+    {"n": 41, "short": "Kitchin, 2014", "text": "Kitchin R. The Data Revolution: Big Data, Open Data, Data Infrastructures and Their Consequences. London: SAGE Publications; 2014.", "url": null},
+    {"n": 42, "short": "Wang & Strong, 1996", "text": "Wang RY, Strong DM. Beyond Accuracy: What Data Quality Means to Data Consumers. J Manag Inf Syst. 1996;12(4):5-33.", "url": "https://doi.org/10.1080/07421222.1996.11518099"},
+    {"n": 43, "short": "Stilgoe et al., 2013", "text": "Stilgoe J, Owen R, Macnaghten P. Developing a Framework for Responsible Innovation. Res Policy. 2013;42(9):1568-1580.", "url": "https://doi.org/10.1016/j.respol.2013.05.008"},
+    {"n": 44, "short": "Jirotka et al., 2017", "text": "Jirotka M, Grimpe B, Stahl BC, Eden G, Hartswood M. Responsible Research and Innovation in the Digital Age. Commun ACM. 2017;60(5):62-68.", "url": "https://doi.org/10.1145/3064940"},
+    {"n": 45, "short": "O'Neill, 2013", "text": "O'Neill O. Intelligent Accountability in Education. Oxf Rev Educ. 2013;39(1):4-16.", "url": "https://doi.org/10.1080/03054985.2013.764761"},
+    {"n": 46, "short": "van Kessel et al., 2022", "text": "van Kessel R, Hrzic R, O'Nuallain E, Weir E, Wong BLH, Anderson M, Baron-Cohen S, Mossialos E. Digital Health Paradox: International Policy Perspectives to Address Increased Health Inequalities for People Living With Disabilities. J Med Internet Res. 2022 Feb 22;24(2):e33819.", "url": "https://doi.org/10.2196/33819"},
+    {"n": 47, "short": "Chakraborty & Elzarka, 2019", "text": "Chakraborty D, Elzarka H. Advanced Internet of Things for Smart Homes: A Review. Wiley Interdiscip Rev Data Min Knowl Discov. 2019;9(2):e1280.", "url": "https://doi.org/10.1002/widm.1280"},
+    {"n": 48, "short": "Zuboff, 2019", "text": "Zuboff S. The Age of Surveillance Capitalism: The Fight for a Human Future at the New Frontier of Power. New York: PublicAffairs; 2019.", "url": null},
+    {"n": 49, "short": "Floridi & Taddeo, 2016", "text": "Floridi L, Taddeo M. What is data ethics? Philos Trans A Math Phys Eng Sci. 2016 Dec 28;374(2083):20160360.", "url": "https://doi.org/10.1098/rsta.2016.0360"},
+    {"n": 50, "short": "Greenhalgh et al., 2004", "text": "Greenhalgh T, Robert G, Macfarlane F, Bate P, Kyriakidou O. Diffusion of innovations in service organizations: systematic review and recommendations. Milbank Q. 2004;82(4):581-629.", "url": "https://doi.org/10.1111/j.0887-378X.2004.00325.x"},
+    {"n": 51, "short": "Destoumieux-Garzón et al., 2018", "text": "Destoumieux-Garzón D, Mavingui P, Boetsch G, Boissier J, Darriet F, Duboz P, Fritsch C, Giraudoux P, Le Roux F, Morand S, Paillard C, Pontier D, Sueur C, Voituron Y. The One Health Concept: 10 Years Old and a Long Road Ahead. Front Vet Sci. 2018 Feb 12;5:14.", "url": "https://doi.org/10.3389/fvets.2018.00014"},
+    {"n": 52, "short": "Cresswell & Sheikh, 2013", "text": "Cresswell K, Sheikh A. Organizational issues in the implementation and adoption of health information technology innovations: an interpretative review. Int J Med Inform. 2013 May;82(5):e73-86.", "url": "https://doi.org/10.1016/j.ijmedinf.2012.10.007"},
+    {"n": 53, "short": "Rogers, 2003", "text": "Rogers EM. Diffusion of Innovations. 5th ed. New York: Free Press; 2003.", "url": null},
+    {"n": 54, "short": "Kotter, 1995", "text": "Kotter JP. Leading Change: Why Transformation Efforts Fail. Harv Bus Rev. 1995;73(2):59-67.", "url": null},
+    {"n": 55, "short": "Perreault et al., 2020", "text": "Perreault T, Leigh R, Vrana M. Environmental Sensor Networks: A Revolution in the Earth System Science? Earth Sci Rev. 2020;203:103091.", "url": "https://doi.org/10.1016/j.earscirev.2020.103091"},
+    {"n": 56, "short": "Beam & Kohane, 2018", "text": "Beam AL, Kohane IS. Big Data and Machine Learning in Health Care. JAMA. 2018 Apr 3;319(13):1317-1318.", "url": "https://doi.org/10.1001/jama.2017.18391"},
+    {"n": 57, "short": "European Commission, 2017", "text": "European Commission. European Interoperability Framework: Promoting Seamless Services and Data Flows for European Public Administrations. Luxembourg: Publications Office of the European Union; 2017.", "url": null},
+    {"n": 58, "short": "Guo et al., 2020", "text": "Guo Y, Chen Z, Xu K, George TJ, Wu Y, Hogan W, et al. International Classification of Diseases, Tenth Revision, Clinical Modification social determinants of health codes are poorly used in electronic health records. Medicine (Baltimore). 2020;99(52):e23818.", "url": "https://doi.org/10.1097/MD.0000000000023818"},
+    {"n": 59, "short": "Wild, 2005", "text": "Wild CP. Complementing the genome with an \"exposome\": the outstanding challenge of environmental exposure measurement in molecular epidemiology. Cancer Epidemiol Biomarkers Prev. 2005;14(8):1847-1850.", "url": "https://doi.org/10.1158/1055-9965.EPI-05-0456"},
+    {"n": 60, "short": "Sjoding et al., 2020", "text": "Sjoding MW, Dickson RP, Iwashyna TJ, Gay SE, Valley TS. Racial bias in pulse oximetry measurement. N Engl J Med. 2020;383(25):2477-2478.", "url": "https://doi.org/10.1056/NEJMc2029240"},
+    {"n": 61, "short": "Obermeyer et al., 2019", "text": "Obermeyer Z, Powers B, Vogeli C, Mullainathan S. Dissecting racial bias in an algorithm used to manage the health of populations. Science. 2019;366(6464):447-453.", "url": "https://doi.org/10.1126/science.aax2342"},
+    {"n": 62, "short": "OECD/EU, 2024", "text": "OECD, European Union. Health at a glance: Europe 2024 — state of health in the EU cycle. Paris: OECD Publishing; 2024.", "url": "https://doi.org/10.1787/b3704e14-en"},
+    {"n": 63, "short": "Regulation (EU) 2022/2371", "text": "Regulation (EU) 2022/2371 of the European Parliament and of the Council of 23 November 2022 on serious cross-border threats to health and repealing Decision No 1082/2013/EU. Official Journal of the European Union. 2022.", "url": null},
+    {"n": 64, "short": "WHO Europe, 2022", "text": "World Health Organization Regional Office for Europe. Health and care workforce in Europe: time to act. Copenhagen: World Health Organization; 2022.", "url": null},
+    {"n": 65, "short": "WHO Europe, 2019", "text": "World Health Organization Regional Office for Europe. Healthy, prosperous lives for all: the European Health Equity Status Report. Copenhagen: World Health Organization; 2019.", "url": null},
+    {"n": 66, "short": "United Nations, 2015", "text": "United Nations. Transforming our world: the 2030 Agenda for Sustainable Development. New York: UN; 2015.", "url": null},
+    {"n": 67, "short": "AI Act, Regulation (EU) 2024/1689", "text": "Regulation (EU) 2024/1689 of the European Parliament and of the Council of 13 June 2024 laying down harmonised rules on artificial intelligence (Artificial Intelligence Act). Official Journal of the European Union. 2024.", "url": null},
+    {"n": 68, "short": "CSDH, 2008", "text": "Commission on Social Determinants of Health. Closing the gap in a generation: health equity through action on the social determinants of health. Geneva: World Health Organization; 2008.", "url": null},
+    {"n": 69, "short": "EHDS, Regulation (EU) 2025/327", "text": "Regulation (EU) 2025/327 of the European Parliament and of the Council of 11 February 2025 on the European Health Data Space and amending Directive 2011/24/EU and Regulation (EU) 2024/2847. Official Journal of the European Union. 2025 Mar 5;L(2025/327).", "url": null},
+    {"n": 70, "short": "EFSA & ECDC, 2025", "text": "European Food Safety Authority, European Centre for Disease Prevention and Control. The European Union One Health 2024 zoonoses report. EFSA J. 2025;23(12):e9759.", "url": "https://doi.org/10.2903/j.efsa.2025.9759"},
+    {"n": 71, "short": "Erasmus+ programme guide", "text": "European Commission. Erasmus+ programme guide, part B, key action 2 — cooperation partnerships [Internet]. Brussels: European Commission.", "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/cooperation-partnerships"},
+    {"n": 72, "short": "GDPR, Regulation (EU) 2016/679", "text": "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of natural persons with regard to the processing of personal data (General Data Protection Regulation). Official Journal of the European Union. 2016 May 4;L119.", "url": null},
+    {"n": 73, "short": "COST Association", "text": "COST Association. Open Call for COST Actions — proposers’ guidelines [Internet]. Brussels: COST Association; [cited 2026 Oct 19].", "url": "https://www.cost.eu/funding/how-to-get-funding/open-call"}
   ];
 
-  return { META, LAYERS, CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, CLUSTERS, ARCHETYPES,
-           STAKEHOLDERS, MECHANISMS, CHAIN, STORY, GLOSSARY, REFERENCES };
+  return { META, LABS, CONNECTIONS, ACKNOWLEDGEMENTS, CHALLENGE, LEAD_PHASES,
+           CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, GLOSSARY, REFERENCES };
 })();

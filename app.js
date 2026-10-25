@@ -1,10 +1,12 @@
 /* =====================================================================
-   The Invisible Context: app (hash router + views + Steering Wheel)
+   (In)Visible Health: app (hash router + views + Steering Wheel)
+   Sections: shared helpers, ODH wheel, home and challenge, IFAL views,
+   BVDL views, ETL views, glossary and about, router.
    ===================================================================== */
 (function () {
   "use strict";
 
-  const D = window.IFAL;
+  const D = window.LEAD;
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const main = $("#main");
@@ -14,6 +16,7 @@
   const persp = (id) => D.PERSPECTIVES.find((p) => p.id === id);
   const dim = (id) => D.DIMENSIONS.find((d) => d.id === id);
   const cluster = (id) => D.CLUSTERS.find((c) => c.id === id);
+  const lab = (id) => D.LABS.find((l) => l.id === id);
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -27,6 +30,26 @@
   const layerBadge = (id) => { const l = layer(id); return `<span class="badge" style="background:${l.color}">${esc(l.name)}</span>`; };
   const archBadge = (n) => { const a = byN(n); return `<a class="badge" style="background:${a.color}" href="#/archetype/${a.n}">${a.n} · ${esc(a.name)}</a>`; };
   const dot = (color) => `<span class="dot" style="background:${color}"></span>`;
+  const refLink = (r) => r.url ? ` <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.url.replace(/^https?:\/\//, ""))}</a>` : "";
+  const labTag = (id) => { const l = lab(id); return `<a class="lab-tag lab-${l.id}" href="${l.route}"><span class="nav-dot" aria-hidden="true"></span>${esc(l.verb)} · ${esc(l.short)}</a>`; };
+  const list = (items, cls = "") => `<ul class="${cls}">${items.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  const chipList = (items) => `<div class="chips">${items.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div>`;
+  // "a, b and c"
+  const joinAnd = (xs) => xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+
+  // Section strip shown at the top of every page that belongs to a lab
+  const SUBNAV = {
+    ifal: [["ifal", "Overview", "#/ifal"], ["map", "The Map", "#/map"], ["archetype", "Archetypes", "#/archetype/1"], ["layers", "Five layers", "#/layers"], ["people", "Stakeholders", "#/people"]],
+    bvdl: [["bvdl", "Overview", "#/bvdl"], ["infrastructure", "Data infrastructure", "#/bvdl/infrastructure"], ["responses", "Visibility responses", "#/bvdl/responses"], ["odhness", "ODHness", "#/bvdl/odhness"], ["issues", "Issues and research", "#/bvdl/issues"]],
+    etl: [["etl", "Why Europe", "#/etl"], ["opportunity", "Opportunity Matrix", "#/etl/opportunity"], ["gates", "Two gates", "#/etl/gates"], ["pathways", "European pathways", "#/etl/pathways"]]
+  };
+  const labStrip = (id, active) => {
+    const l = lab(id);
+    return `<div class="lab-strip lab-${l.id}"><div class="wrap lab-strip-inner">
+      <a class="lab-id" href="${l.route}"><span class="lab-num">${l.n}</span><span><strong>${esc(l.verb)}</strong><span class="lab-name"> · ${esc(l.name)} (${esc(l.short)})</span></span></a>
+      <nav class="subnav" aria-label="${esc(l.name)}">${SUBNAV[id].map(([key, name, href]) => `<a href="${href}" ${key === active ? 'aria-current="page"' : ""}>${esc(name)}</a>`).join("")}</nav>
+    </div></div>`;
+  };
 
   // wrap glossary terms (first occurrence) in a span with tooltip
   const gloss = (html) => {
@@ -301,14 +324,16 @@
     return `
     <section class="hero"><div class="wrap hero-grid">
       <div>
-        <span class="eyebrow">EFMI LEAD 2026 · Sub-Group 1 · Context Invisibility Map</span>
-        <h1>Health context that information systems do not capture</h1>
-        <p class="lede">${gloss("When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place? This map, produced by Sub-Group 1 of the EFMI LEAD 2026 Bootcamp, describes which contextual determinants of health are systematically missing from BMHI systems, why they remain missing, and who is affected.")}</p>
+        <span class="eyebrow">EFMI LEAD cohort · The Grand Challenge</span>
+        <h1><span class="in">(In)</span>Visible Health</h1>
+        <p class="hero-sub">Tracing the unseen layers of health ecosystems</p>
+        <p class="lede">${gloss("When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place? Three labs of the EFMI LEAD cohort took on this question within One Digital Health (ODH): one diagnoses what stays invisible, one designs how BMHI could make it visible, and one translates the result into European action.")}</p>
         <p class="lede" style="font-size:1rem">The example record on the right shows a discharge decision. Select each field to see the relevant information that the record does not contain.</p>
         <div class="btn-row">
-          <a class="btn" href="#/map">Explore the map →</a>
-          <a class="btn ghost" href="#/layers">The five layers of invisibility</a>
+          <a class="btn" href="#/challenge">Start with the challenge →</a>
+          <button class="btn ghost" data-scroll="labs">Meet the three labs</button>
         </div>
+        <p class="small muted" style="margin-top:14px">New here? <a href="#/guide">A three-minute guide to this site →</a></p>
       </div>
       <div class="card record" id="record">
         <div class="record-head"><span class="who">${esc(st.patient)}</span><span class="tag">Electronic health record</span></div>
@@ -319,26 +344,33 @@
           <button class="btn ghost" id="revealAll" style="padding:8px 16px">Show all</button>
         </div>
         <div class="moral fog" id="moral">${esc(st.moral)}</div>
-        <p class="illustrative">Illustrative example combining decision failures described in the Context Invisibility Map v0.2. It does not describe a real patient.</p>
+        <p class="illustrative">Illustrative example combining decision failures described in the Context Invisibility Map (IFAL). It does not describe a real patient.</p>
       </div>
     </div></section>
 
+    <section class="section" id="labs"><div class="wrap">
+      <span class="eyebrow">How the cohort worked</span>
+      <h2>Three labs, one loop</h2>
+      <p class="lede">The Grand Challenge was split across three sub-groups. Each lab hands its output to the next, and the last one sends questions back to the first, so the work can be refined in further iterations.</p>
+      ${labsLoop()}
+    </div></section>
+
     <section class="section"><div class="wrap">
-      <span class="eyebrow">Five archetypes</span>
+      <span class="eyebrow">Five archetypes · followed through all three labs</span>
       <h2>Five recurring patterns of missing context</h2>
-      <p class="lede">The map distinguishes five mechanisms: a determinant that is not recorded; one recorded in a form other systems cannot interpret; one for which no suitable structured field exists; one held in another sector's system; and one that no outcome indicator measures. Each requires a different response, usually from a different actor.${cite([1, 3])}</p>
+      <p class="lede">IFAL distinguishes five mechanisms: a determinant that is not recorded; one recorded in a form other systems cannot interpret; one for which no suitable structured field exists; one held in another sector's system; and one that no outcome indicator measures. Each requires a different response, usually from a different actor. Each archetype page follows its invisibility from diagnosis to design to European action.${cite([1, 3])}</p>
       <div class="arch-grid" style="margin-top:28px">${cards}</div>
     </div></section>
 
     <section class="section"><div class="wrap">
       <span class="eyebrow">Documentation evidence</span>
       <h2>How often social and environmental determinants are documented</h2>
-      <p class="lede">In a survey of 201 providers, consistent documentation was low even among providers who considered these determinants clinically vital.${cite(6)}</p>
+      <p class="lede">In a survey of 201 providers, consistent documentation was low even among providers who considered these determinants clinically vital.${cite(4)}</p>
       <div class="numbers" style="margin-top:24px">
         ${[["18.2%", "document housing instability consistently"], ["16.4%", "document food insecurity consistently"], ["22.7%", "document transport access consistently"], ["<5%", "document any environmental determinant consistently (excluding outbreaks)"]]
           .map(([v, l]) => `<div class="card stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("")}
       </div>
-      <p class="muted small" style="margin-top:14px">Smoking status, the only social determinant with a long-established structured EHR field, is documented consistently by a substantial majority of providers. This suggests that the gap reflects the structure of the record more than clinical awareness.${cite(6)}</p>
+      <p class="muted small" style="margin-top:14px">Smoking status, the only social determinant with a long-established structured EHR field, is documented consistently by a substantial majority of providers. This suggests that the gap reflects the structure of the record more than clinical awareness.${cite(4)} Across health systems, social determinants are coded in only 1 to 2% of encounters.${cite(58)}</p>
     </div></section>
 
     <section class="section"><div class="wrap split">
@@ -349,7 +381,46 @@
         <div class="btn-row"><a class="btn" href="#/map">View the ODH Steering Wheel →</a></div>
       </div>
       <a href="#/map" aria-label="Open the interactive map" style="display:block">${wheelSVG({ mini: true })}</a>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Where the three labs converge</span>
+      <h2>One shared problem statement</h2>
+      <p class="lede">The labs work towards a single sentence. The first three slots come from the diagnosis and the design; the last is ETL's proposed European response.${cite(69)}</p>
+      ${statementHTML()}
+      <div class="btn-row"><a class="btn ghost" href="#/archetype/1">See it filled in for an archetype →</a></div>
     </div></section>`;
+  }
+
+  // IFAL → BVDL → ETL → back to IFAL
+  function labsLoop() {
+    const card = (l) => `<a class="card lab-card lab-${l.id}" href="${l.route}">
+        <span class="lab-num">${l.n}</span>
+        <span class="eyebrow" style="margin:0">${esc(l.verb)} · ${esc(l.role)}</span>
+        <h3>${esc(l.name)}</h3>
+        <p class="lab-q">${esc(l.question)}</p>
+        <p class="small muted" style="margin:0">Output: <strong>${esc(l.output)}</strong></p>
+        <p class="small muted" style="margin:0">${l.members.map(esc).join(" · ")}</p>
+      </a>`;
+    const arrow = (c) => `<div class="hand-off" aria-hidden="false"><span class="arr" aria-hidden="true"></span><span class="hand-label">${esc(c.label)}</span></div>`;
+    const c = (from) => D.CONNECTIONS.find((x) => x.from === from);
+    return `<div class="loop3">
+        ${card(lab("ifal"))}${arrow(c("ifal"))}${card(lab("bvdl"))}${arrow(c("bvdl"))}${card(lab("etl"))}
+      </div>
+      <div class="loop-back"><span class="arr-back" aria-hidden="true"></span><span><strong>ETL → IFAL:</strong> ${esc(c("etl").label)} ${esc(c("etl").text)}</span></div>`;
+  }
+
+  // The shared problem statement (section 3.5.2); fill = { slot: html } for a filled-in version
+  function statementHTML(fill) {
+    const S = D.STATEMENT;
+    const who = { "ifal+bvdl": "IFAL and BVDL", etl: "ETL" };
+    const body = S.template.map((p) => {
+      if (p.t) return esc(p.t);
+      const v = fill && fill[p.slot];
+      return `<span class="slot slot-${p.lab === "etl" ? "etl" : "ifal"}${v ? " filled" : ""}" title="Slot filled by ${who[p.lab]}">${v || `[${esc(p.label)}]`}</span>`;
+    }).join("");
+    return `<blockquote class="statement card">${body}</blockquote>
+      <div class="statement-key small muted"><span><i class="slot-ifal"></i>Filled by IFAL and BVDL</span><span><i class="slot-etl"></i>Filled by ETL</span></div>`;
   }
 
   function eyeIcon() {
@@ -357,6 +428,7 @@
   }
 
   function bindHome() {
+    $("[data-scroll]").addEventListener("click", (e) => $("#" + e.currentTarget.dataset.scroll).scrollIntoView({ behavior: "smooth" }));
     const total = D.STORY.rows.length;
     const update = () => {
       const n = $$(".rrow.open").length;
@@ -378,6 +450,120 @@
       const all = $$(".rrow.open").length === total;
       $$(".rrow").forEach((row, i) => setTimeout(() => { setRow(row, !all); update(); }, all ? 0 : i * 260));
     });
+  }
+
+  /* ---------------------------------------------------------------- CHALLENGE */
+  function viewChallenge() {
+    const C = D.CHALLENGE;
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">The Grand Challenge · Invisible Context</span>
+      <h1>Context that never reaches the decision</h1>
+      <p class="lede">${gloss("Health decisions are routinely made without contextual information that largely determines their outcome. The question is not whether context matters, which is well established, but how much relevant context was never made visible, and what kind of absence each gap is.")}${cite([1, 2, 3])}</p>
+    </div>
+
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <div class="examples">
+        ${C.examples.map((x) => `<a class="card example" href="#/archetype/${x.a}" style="border-left-color:${byN(x.a).color}"><p>${esc(x.text)}</p><span class="small muted">Archetype ${x.a} · ${esc(byN(x.a).name)} →</span></a>`).join("")}
+      </div>
+      <p class="closing" style="max-width:62ch">In each case the clinical reasoning is sound. The decision still fails, because the determining context was neither digitally available nor cognitively present when it was made.</p>
+    </div></section>
+
+    <section class="section"><div class="wrap split" style="align-items:start">
+      <div>
+        <span class="eyebrow">Not one phenomenon, but five</span>
+        <h2>Five different kinds of absence</h2>
+        <p class="lede">Treating every gap as "missing data" keeps the problem in place, because each kind needs a different remedy and a different institutional actor.</p>
+        <a class="btn ghost" href="#/layers">The five layers of invisibility →</a>
+      </div>
+      <ol class="absences">
+        ${C.absences.map((x) => { const l = layer(x.layer); return `<li style="--c:${l.color}"><span class="ln-s" style="background:${l.color}">${l.n}</span><span><strong>${esc(l.name)}</strong>: ${esc(x.text)}</span></li>`; }).join("")}
+      </ol>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">The evidence in brief</span>
+      <h2>The determinants that matter most are the least visible</h2>
+      <div class="numbers" style="margin-top:20px">
+        <div class="card stat"><div class="v">1 to 2%</div><div class="l">of encounters have social determinants coded${cite(58)}</div></div>
+        <div class="card stat"><div class="v">&lt;5%</div><div class="l">of providers consistently document any environmental determinant other than outbreaks${cite(4)}</div></div>
+        <div class="card stat"><div class="v">Built in</div><div class="l">pulse oximetry overestimates oxygen saturation in darker skin; recognition systems are less accurate for Black women${cite(5)}</div></div>
+      </div>
+      <p class="lede" style="margin-top:24px">${gloss("Information opacity is a systemic property of health care: the loss of patient narrative and fragmented surveillance data drove inequitable decisions during COVID-19. Digital determinants such as data poverty and algorithmic bias add another layer of inequity. In ODH, human, animal and environmental determinants belong to one ecosystem, yet their signals sit outside clinical data capture.")}${cite([1, 5, 6, 2])}</p>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Why it is hard</span>
+      <h2>Separate data streams hide the feedback loops</h2>
+      <p class="lede">Real-life drivers such as micro-climate changes, local socio-economic stress, wildlife behaviour and hidden exposures often stay below digital surveillance thresholds. Each domain uses its own data sources, so a chemical run-off can change wildlife physiology long before human symptoms appear, without any system connecting the two.${cite([2, 7])}</p>
+      <div class="domains">
+        ${C.domains.map((d) => `<div class="card domain"><h3>${esc(d.name)}</h3><p class="muted" style="margin:0">${esc(d.text)}</p></div>`).join('<span class="domain-gap" aria-hidden="true">≠</span>')}
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">About LEAD</span>
+      <h2>A cohort learning by doing</h2>
+      <p class="lede">${gloss("LEAD (EducationaL EFMI Assembly Designed for BMHI) is a cohort of young Biomedical and Health Informatics professionals from several European countries, set up by the Young EFMI Workgroup. It aims to be a cybernetic educational framework for future BMHI leadership: the cohort frames a problem, builds shared knowledge, negotiates it against real systems, and turns it into a proposal.")}</p>
+      <ol class="timeline">
+        ${C.timeline.map((t) => `<li><span class="when">${esc(t.when)}</span><span class="where">${esc(t.where)}</span><p>${esc(t.text)}</p></li>`).join("")}
+      </ol>
+      <div class="phases">
+        ${D.LEAD_PHASES.map((ph, i) => `<div class="card phase"><span class="ph-n">${i + 1}</span><h3>${esc(ph.name)}</h3><p>${esc(ph.text)}</p></div>`).join("")}
+      </div>
+      <p class="small muted" style="margin-top:12px">IFAL's diagnosis belongs to the first two phases; BVDL's design work and ETL's European proposal take the challenge further along the loop.</p>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">How the cohort split the work</span>
+      <h2>Three labs, one loop</h2>
+      ${labsLoop()}
+    </div></section>`;
+  }
+
+  /* ---------------------------------------------------------------- IFAL OVERVIEW */
+  function viewIfal() {
+    const L = lab("ifal");
+    const conn = (from) => D.CONNECTIONS.find((c) => c.from === from);
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">Sub-group 1 · ${esc(L.role)}</span>
+      <h1>${esc(L.name)}</h1>
+      <p class="lede">${esc(L.question)} IFAL's output is the <strong>Context Invisibility Map</strong>: five layers of invisibility, five archetypes of decision failure, the people who carry the burden, and where each archetype sits on the ODH Steering Wheel.</p>
+    </div>
+    <section class="section" style="padding-top:24px"><div class="wrap split" style="align-items:start">
+      <div>
+        <h3>Tasks</h3>
+        ${list(L.tasks, "tasks")}
+        <h3 style="margin-top:24px">Method</h3>
+        <p>The map is anchored on <strong>decisions</strong>: a determinant counts as invisible only in relation to a decision it should have informed. The five archetypes were chosen so that together they cover all five layers and all three ODH perspectives, so that no form of invisibility is left out of the work of the other two labs.${cite(2)}</p>
+      </div>
+      <div class="handoffs">
+        <div class="card handoff lab-bvdl"><span class="eyebrow" style="margin:0">Hands on to BVDL</span><h3>${esc(conn("ifal").label)}</h3><p>${esc(conn("ifal").text)}</p><a class="small" href="#/bvdl/responses">How BVDL responds →</a></div>
+        <div class="card handoff lab-etl"><span class="eyebrow" style="margin:0">Receives from ETL</span><h3>${esc(conn("etl").label)}</h3><p>${esc(conn("etl").text)}</p><a class="small" href="#/etl/gates">ETL's prioritisation criteria →</a></div>
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Two clusters</span>
+      <h2>Not in the record, or stuck behind a boundary</h2>
+      <div class="mech-grid" style="margin-top:20px">
+        ${D.CLUSTERS.map((c) => `<div class="card"><h3>${esc(c.name)} invisibilities</h3><p>${esc(c.text)}</p><div class="chips">${c.archetypes.map(archBadge).join("")}</div></div>`).join("")}
+      </div>
+      <p class="small muted" style="margin-top:12px">A way of making context visible that is designed for one cluster will not, on its own, address the other.</p>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Explore the map</span>
+      <h2>Four ways into the diagnosis</h2>
+      <div class="arch-grid" style="margin-top:20px">
+        ${[["#/map", "The Map", "The five archetypes placed on the interactive ODH Steering Wheel."],
+           ["#/archetype/1", "The archetypes", "Each archetype: failing decisions, hidden determinants, mechanisms, and the thread through the other two labs."],
+           ["#/layers", "Five layers", "Informational, semantic, experiential, governance and evaluative invisibility, and how they reinforce each other."],
+           ["#/people", "Stakeholders", "Who carries the burden: patients, clinicians, institutions and the wider ecosystem."]]
+          .map(([h, t, d]) => `<a class="card arch-card lab-card-mini" href="${h}"><h3>${esc(t)} →</h3><p>${esc(d)}</p></a>`).join("")}
+      </div>
+    </div></section>`;
   }
 
   /* ---------------------------------------------------------------- MAP */
@@ -622,12 +808,17 @@
         <h1>${esc(a.name)}</h1>
         <p class="lede">${esc(a.tagline)}</p>
         <div class="chips" style="margin-top:14px">${a.layers.map(layerBadge).join("")}<span class="chip">${esc(cluster(a.cluster).name)} invisibility</span></div>
+        <div class="thread-jump">
+          <span class="small muted">Follow it through the labs:</span>
+          ${["ifal", "bvdl", "etl"].map((id) => `<a class="lab-tag lab-${id}" href="#/archetype/${a.n}" data-jump="thread-${id}"><span class="nav-dot" aria-hidden="true"></span>${esc(lab(id).verb)}</a>`).join("")}
+        </div>
       </div>
     </div>
 
     <div class="wrap a-body">
       <div class="a-main">
-        <section>
+        <section id="thread-ifal">
+          <div class="stage-head">${labTag("ifal")}<span class="small muted">Step 1 of the thread: what is missing, and why</span></div>
           <p style="font-size:1.08rem">${gloss(esc(a.summary))}${cite(a.refs)}</p>
         </section>
 
@@ -678,11 +869,13 @@
         <div class="card side-card">
           <details class="evidence">
             <summary>Evidence</summary>
-            <ol>${a.refs.map((r) => { const ref = D.REFERENCES[r - 1]; return `<li value="${r}">${esc(ref.text)} <a href="https://doi.org/${ref.doi}" target="_blank" rel="noopener">doi</a></li>`; }).join("")}</ol>
+            <ol>${a.refs.map((r) => { const ref = D.REFERENCES[r - 1]; return `<li value="${r}">${esc(ref.text)}${refLink(ref)}</li>`; }).join("")}</ol>
           </details>
         </div>
       </aside>
     </div>
+
+    ${threadHTML(a)}
 
     <div class="wrap"><nav class="pager" aria-label="Archetype navigation">
       ${prev ? `<a href="#/archetype/${prev.n}"><span class="dir">← Previous</span><span class="t">${prev.n}. ${esc(prev.name)}</span></a>` : `<a href="#/map"><span class="dir">← Back to</span><span class="t">The Map</span></a>`}
@@ -690,9 +883,55 @@
     </nav></div>`;
   }
 
+  // Steps 2 to 4 of the archetype thread: BVDL design, ETL translation, shared statement
+  function threadHTML(a) {
+    const iv = D.INTERVENTIONS[a.n];
+    const rows = D.OPPORTUNITY.filter((o) => a.dimensions.includes(o.dim));
+    const lower = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+    const fill = {
+      determinant: esc(joinAnd(a.determinants.slice(0, 3).map(lower))),
+      mechanism: esc(`${joinAnd(a.layers.map((l) => lower(layer(l).name)))} invisibility`),
+      decisions: esc(D.DECISIONS[a.n]),
+      response: esc(`${lower(iv.what)}, within a European ODH approach`)
+    };
+    return `<section class="thread-sec"><div class="wrap">
+      <span class="eyebrow">The thread</span>
+      <h2>From diagnosis to European action</h2>
+      <p class="lede">What the other two labs propose for this archetype.</p>
+
+      <div class="stage card lab-bvdl" id="thread-bvdl">
+        <div class="stage-head">${labTag("bvdl")}<span class="small muted">Step 2: how BMHI could make it visible</span></div>
+        <div class="stage-grid">
+          <div><h4>Proposed visibility intervention</h4><p class="big-p">${gloss(esc(iv.what))}</p></div>
+          <div><h4>Expected outcome</h4><p>${esc(iv.outcome)}</p></div>
+        </div>
+        <h4>Response to each layer involved</h4>
+        ${a.layers.map((l) => `<div class="resp-row">${layerBadge(l)}<p>${gloss(esc(D.LAYER_RESPONSES[l]))}</p></div>`).join("")}
+        <a class="small" href="#/bvdl/responses">All BMHI visibility responses →</a>
+      </div>
+
+      <div class="stage card lab-etl" id="thread-etl">
+        <div class="stage-head">${labTag("etl")}<span class="small muted">Step 3: why it is a European matter</span></div>
+        <p>This archetype sits on ${rows.length === 1 ? "one ODH dimension" : `${rows.length} ODH dimensions`}. For each, ETL states what stays invisible and what European action would add.</p>
+        ${rows.map((o) => `<div class="eu-row">
+          <h4>${esc(dim(o.dim).name)}</h4>
+          <dl class="kv eu-kv"><dt>Stays invisible</dt><dd>${esc(o.invisible)}</dd><dt>European added value</dt><dd>${esc(o.value)}</dd><dt>European anchor</dt><dd>${gloss(esc(o.anchor))}${cite(o.ref)}</dd></dl>
+        </div>`).join("")}
+        <a class="small" href="#/etl/opportunity">Open the European Opportunity Matrix →</a>
+      </div>
+
+      <div class="stage card" id="thread-statement">
+        <div class="stage-head"><span class="eyebrow" style="margin:0">Step 4: the shared problem statement</span></div>
+        ${statementHTML(fill)}
+        <p class="small muted" style="margin-top:10px">Assembled on this site from the three labs' tables for this archetype. It has not yet been validated by the labs, and ETL's prioritisation criteria have not yet been applied to it.</p>
+      </div>
+    </div></section>`;
+  }
+
   function bindArchetype(n) {
     const a = byN(n);
     if (!a) return;
+    $$("[data-jump]").forEach((j) => j.addEventListener("click", (e) => { e.preventDefault(); $("#" + j.dataset.jump).scrollIntoView({ behavior: "smooth", block: "start" }); }));
     paintWheel($("#miniHost svg"), { selected: a.n });
     const link = $("[data-select]");
     if (link) link.addEventListener("click", () => { mapState.kind = mapState.id = null; mapState.mode = "explore"; mapState.selected = a.n; });
@@ -784,7 +1023,7 @@
     <div class="wrap page-head">
       <span class="eyebrow">Distribution of the burden</span>
       <h1>Affected stakeholders</h1>
-      <p class="lede">Missing context is not evenly distributed. Identifying who bears its consequences is part of the diagnosis.${cite([2, 4, 6])} Select a group, and optionally an archetype, to see who is affected.</p>
+      <p class="lede">Missing context is not evenly distributed. Identifying who bears its consequences is part of the diagnosis.${cite([2, 4, 5])} Select a group, and optionally an archetype, to see who is affected.</p>
     </div>
     <div class="wrap" style="padding-bottom:56px">
       <div class="tabs" role="tablist">
@@ -814,31 +1053,550 @@
     render();
   }
 
+  /* ================================================================
+     BVDL: BMHI Visibility Design Lab
+     ================================================================ */
+  function viewBvdl() {
+    const L = lab("bvdl");
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">Sub-group 2 · ${esc(L.role)}</span>
+      <h1>${esc(L.name)}</h1>
+      <p class="lede">${esc(L.question)} BVDL turns IFAL's diagnosis into design hypotheses: which data sources, standards and architectures could make hidden determinants visible, and what could go wrong when they do. Its output is the <strong>BMHI Visibility Hypothesis Board</strong>.</p>
+    </div>
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <span class="eyebrow">What "visible" means</span>
+      <h2>Available is not the same as visible</h2>
+      <p class="lede">A determinant becomes visible only when it passes through every step below. Visibility therefore needs an end-to-end infrastructure, from data acquisition to action.</p>
+      <ol class="vchain">${D.VISIBILITY_CHAIN.map((s, i) => `<li><span class="vc-n">${i + 1}</span><strong>${esc(s.name)}</strong><span class="small muted">${esc(s.text)}</span></li>`).join("")}</ol>
+      <p class="closing">The challenge is not the absence of data, but the absence of architectures that turn scattered contextual signals into actionable intelligence.</p>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Two families of hidden determinants</span>
+      <h2>Upstream of the clinical encounter</h2>
+      <div class="mech-grid" style="margin-top:20px">
+        ${D.DETERMINANT_FAMILIES.map((d) => `<div class="card"><h3>${esc(d.name)}</h3><p>${esc(d.text)}${cite(d.ref)}</p></div>`).join("")}
+      </div>
+      <p class="lede" style="margin-top:20px">Health institutions, environmental agencies, social services, schools and public-order authorities all hold part of the picture, but traditional health systems rarely integrate their data.${cite([7, 10, 11])}</p>
+      <div class="btn-row"><a class="btn" href="#/bvdl/infrastructure">Explore the data infrastructure →</a></div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Technical implementation of ODH</span>
+      <h2>Three kinds of interoperability</h2>
+      <p class="lede">If any one of them fails, invisibility returns, even when data capture works.</p>
+      <div class="mech-grid" style="margin-top:20px">
+        ${D.INTEROPERABILITY.map((x) => `<div class="card"><span class="eyebrow" style="margin-bottom:4px">${esc(x.gist)}</span><h3>${esc(x.name)}</h3><p>${gloss(esc(x.text))}${cite(x.ref)}</p></div>`).join("")}
+      </div>
+      <h3 style="margin-top:32px">Prerequisites for a system-wide implementation</h3>
+      <div class="mech-grid">
+        ${D.PREREQUISITES.map((x, i) => `<div class="card prereq"><span class="ph-n">${i + 1}</span><h3>${esc(x.name)}</h3><p>${gloss(esc(x.text))}</p></div>`).join("")}
+      </div>
+      <div class="callout lab-bvdl" style="margin-top:24px"><p>${esc(D.IMPLEMENTATION_KEY)}</p></div>
+      <p class="small muted" style="margin-top:12px">Reusable, machine-readable specifications such as the WHO SMART Guidelines can help implementation across heterogeneous systems.${cite([21, 22])}</p>
+    </div></section>`;
+  }
+
+  // Figure 1: determinant families → data sources → capture instruments → analysis
+  const infraState = { det: null, src: null };
+  function viewInfrastructure() {
+    const A = D.ARCHITECTURE;
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">BVDL · Figure 1 and Table 3</span>
+      <h1>The data infrastructure matrix</h1>
+      <p class="lede">${gloss("Where could hidden determinants be captured? The Hypothesis Board links the two families of determinants to the actors that hold data about them, the instruments that capture it, and the analytical processes that turn it into intelligence, all following the FAIR principles.")}${cite(2)} Select a determinant family or a data source to see how they connect.</p>
+    </div>
+    <div class="wrap" style="padding-bottom:56px">
+      <div class="board card">
+        <div class="board-col">
+          <h4>1 · Hidden determinants</h4>
+          ${D.DETERMINANT_FAMILIES.map((d) => `<button class="node det-node" data-det="${d.id}" aria-pressed="false"><strong>${esc(d.name)}</strong></button>`).join("")}
+          <p class="small muted" id="infraNote" aria-live="polite">Each source holds data on one or both families.</p>
+        </div>
+        <div class="board-col">
+          <h4>2 · Possible data sources</h4>
+          ${D.SOURCES.map((s) => `<button class="node src-node" data-src="${s.id}" aria-pressed="false"><strong>${esc(s.name)}</strong><span class="node-items">${s.items.map(esc).join(" · ")}</span></button>`).join("")}
+        </div>
+        <div class="board-col">
+          <h4>3 · Data capture instruments</h4>
+          ${D.INSTRUMENTS.map((x) => `<div class="node inst-node"><strong>${esc(x.name)}</strong><span class="node-items">${x.items.map(esc).join(" · ")}</span></div>`).join("")}
+        </div>
+      </div>
+      <div class="board-flow" aria-hidden="true"><span>↓</span></div>
+      <div class="board card board-bottom">
+        <div><h4>Prerequisites</h4>${list(A.prerequisites)}</div>
+        <div><h4>Human-led analysis</h4>${list(A.human)}</div>
+        <div><h4>AI processes</h4>${list(A.ai)}</div>
+        <div class="board-out"><h4>Result</h4><p>Visible, actionable contextual intelligence for individual, population and ecosystem health</p></div>
+      </div>
+      <p class="small muted" style="margin-top:12px">Redrawn from the BMHI Visibility Hypothesis Board (v1.0), Figure 1 of the shared document. Links between determinant families and sources follow the figure; IS = information system.</p>
+
+      <div class="callout lab-bvdl" style="margin-top:28px">
+        <h3>The trade-off in capture</h3>
+        <p>${gloss(esc(D.LAYER_NOTES[0].text))}</p>
+      </div>
+    </div>`;
+  }
+  function bindInfrastructure() {
+    const render = () => {
+      const { det, src } = infraState;
+      const srcDef = src && D.SOURCES.find((s) => s.id === src);
+      $$(".det-node").forEach((b) => {
+        const on = det === b.dataset.det || (srcDef && srcDef.det.includes(b.dataset.det));
+        b.setAttribute("aria-pressed", String(det === b.dataset.det));
+        b.classList.toggle("lit", !!on);
+        b.classList.toggle("dim", !!(det || src) && !on);
+      });
+      $$(".src-node").forEach((b) => {
+        const s = D.SOURCES.find((x) => x.id === b.dataset.src);
+        const on = src === s.id || (det && s.det.includes(det));
+        b.setAttribute("aria-pressed", String(src === s.id));
+        b.classList.toggle("lit", !!on);
+        b.classList.toggle("dim", !!(det || src) && !on);
+      });
+      const note = $("#infraNote");
+      if (det) { const n = D.SOURCES.filter((s) => s.det.includes(det)).length; note.textContent = `${n} of ${D.SOURCES.length} source groups hold data on ${D.DETERMINANT_FAMILIES.find((d) => d.id === det).name.toLowerCase()}.`; }
+      else if (srcDef) note.textContent = `${srcDef.name} relate to ${joinAnd(srcDef.det.map((d) => D.DETERMINANT_FAMILIES.find((x) => x.id === d).name.toLowerCase()))}.`;
+      else note.textContent = "Each source holds data on one or both families.";
+    };
+    $$(".det-node").forEach((b) => b.addEventListener("click", () => { infraState.det = infraState.det === b.dataset.det ? null : b.dataset.det; infraState.src = null; render(); }));
+    $$(".src-node").forEach((b) => b.addEventListener("click", () => { infraState.src = infraState.src === b.dataset.src ? null : b.dataset.src; infraState.det = null; render(); }));
+    render();
+  }
+
+  function viewResponses() {
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">BVDL · Tables 4 and 5</span>
+      <h1>From diagnosis to visibility design</h1>
+      <p class="lede">Each layer of invisibility names a different failure, so each needs a different BMHI response. The archetypes then need more specific, implementable interventions.</p>
+    </div>
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <span class="eyebrow">Table 4 · one response per layer</span>
+      <h2>What is missing, and what BMHI could do</h2>
+      <div class="resp-list">
+        ${D.LAYERS.map((l) => `<div class="card resp" style="--c:${l.color}">
+          <div class="resp-side"><span class="ln-s" style="background:${l.color}">${l.n}</span><div><h3>${esc(l.name)}</h3><p class="small muted" style="margin:0">${esc(l.question)}</p></div></div>
+          <div class="resp-from"><span class="lab-mini lab-ifal">IFAL · missing</span><p>${esc(l.missing)}</p></div>
+          <div class="resp-arrow" aria-hidden="true">→</div>
+          <div class="resp-to"><span class="lab-mini lab-bvdl">BVDL · response</span><p>${gloss(esc(D.LAYER_RESPONSES[l.id]))}</p></div>
+        </div>`).join("")}
+      </div>
+      <div class="callout lab-bvdl" style="margin-top:24px">
+        <h3>${esc(D.LAYER_NOTES[1].title)}</h3>
+        <p>${gloss(esc(D.LAYER_NOTES[1].text))}${cite(D.LAYER_NOTES[1].ref)}</p>
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Table 5 · one intervention per archetype</span>
+      <h2>Visibility interventions for the five archetypes</h2>
+      <div class="arch-grid" style="margin-top:20px">
+        ${D.ARCHETYPES.map((a) => { const iv = D.INTERVENTIONS[a.n]; return `<a class="card arch-card" href="#/archetype/${a.n}" style="border-top-color:${a.color}">
+          <div style="display:flex;gap:10px;align-items:center">${num(a)}<span class="plain">${esc(a.name)}</span></div>
+          <h3 style="font-size:1.05rem">${esc(iv.what)}</h3>
+          <p><strong>Expected outcome:</strong> ${esc(iv.outcome)}</p>
+          <span class="small" style="margin-top:auto">Follow the thread →</span>
+        </a>`; }).join("")}
+      </div>
+      <p class="small muted" style="margin-top:14px">These interventions depend on interoperable architectures that keep meaning, provenance, quality and trust across organisational and sector boundaries.</p>
+    </div></section>`;
+  }
+
+  // ODHness: three digitalities as overlapping circles
+  const odhState = { pick: null };
+  function viewOdhness() {
+    const O = D.ODHNESS;
+    const C = [["humanities", 0, -52, "#C2410C"], ["animalities", -58, 44, "#0F766E"], ["environmentalities", 58, 44, "#4D7C0F"]];
+    const venn = `<svg class="venn" viewBox="-190 -170 380 330" role="group" aria-label="Three digitalities overlapping in ODHness">
+      ${C.map(([id, x, y, col]) => { const d = O.digitalities.find((q) => q.id === id); return `<g class="vc" data-pick="${id}" tabindex="0" role="button" aria-label="${esc(d.name)}"><circle cx="${x}" cy="${y}" r="98" fill="${col}"/><text x="${x * 1.55}" y="${y * 1.6 + 5}" text-anchor="middle">${esc(d.domain)}</text></g>`; }).join("")}
+      <text class="venn-core" x="0" y="10" text-anchor="middle">ODHness</text>
+    </svg>`;
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">BVDL · section 2.1.4</span>
+      <h1>ODHness as a visibility metric</h1>
+      <p class="lede">${gloss(esc(O.definition))}</p>
+    </div>
+    <div class="wrap split" style="padding-bottom:40px;align-items:start">
+      <div class="card venn-box">${venn}<p class="hint small muted">Select a circle.</p></div>
+      <div id="odhPanel" aria-live="polite"></div>
+    </div>
+    <section class="section"><div class="wrap">
+      <div class="mech-grid">${O.digitalities.map((d) => `<div class="card"><span class="eyebrow" style="margin-bottom:4px">${esc(d.domain)}</span><h3>${esc(d.name)}</h3><p>${esc(d.text)}${cite(d.ref)}</p></div>`).join("")}</div>
+      <div class="callout lab-bvdl" style="margin-top:24px"><p>${esc(O.governance)}${cite([31, 32])}</p></div>
+    </div></section>`;
+  }
+  function bindOdhness() {
+    const O = D.ODHNESS;
+    const render = () => {
+      const d = O.digitalities.find((x) => x.id === odhState.pick);
+      $$(".venn .vc").forEach((g) => { g.classList.toggle("on", g.dataset.pick === odhState.pick); g.classList.toggle("off", !!odhState.pick && g.dataset.pick !== odhState.pick); });
+      $("#odhPanel").innerHTML = d
+        ? `<span class="eyebrow">${esc(d.domain)} domain</span><h2>${esc(d.name)}</h2><p class="lede">${esc(d.text)}${cite(d.ref)}</p><button class="clear-btn" data-clear>Show all three</button>`
+        : `<span class="eyebrow">The idea</span><h2>Three digitalities, one ecosystem</h2><p class="lede">Together, digital humanities, animalities and environmentalities put the One Health principle into practice in a connected world: human, animal and environmental health are parts of one socio-ecological system. The more an ecosystem integrates all three through interoperable data, technology and governance, the higher its ODHness.${cite([2, 8])}</p>`;
+    };
+    const pick = (id) => { odhState.pick = odhState.pick === id ? null : id; render(); };
+    $$(".venn .vc").forEach((g) => {
+      g.addEventListener("click", () => pick(g.dataset.pick));
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(g.dataset.pick); } });
+    });
+    $("#odhPanel").addEventListener("click", (e) => { if (e.target.closest("[data-clear]")) { odhState.pick = null; render(); } });
+    render();
+  }
+
+  const issueState = { id: "privacy" };
+  function viewIssues() {
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">BVDL · sections 2.2 and 2.3</span>
+      <h1>Implementation issues, turned into research</h1>
+      <p class="lede">Making context visible creates its own problems. BVDL treats each one as a researchable question, with a study design and the partners it would need.</p>
+      <div class="callout lab-bvdl"><p><strong>Working hypothesis.</strong> ${esc(D.HYPOTHESIS)}</p></div>
+    </div>
+    <div class="wrap" style="padding-top:24px;padding-bottom:56px">
+      <div class="tabs" role="tablist">${D.ISSUES.map((x) => `<button role="tab" data-issue="${x.id}" aria-selected="${x.id === issueState.id}">${esc(x.name)}</button>`).join("")}</div>
+      <div id="issuePanel" role="tabpanel" aria-live="polite"></div>
+    </div>`;
+  }
+  function bindIssues() {
+    const render = () => {
+      const x = D.ISSUES.find((i) => i.id === issueState.id), r = x.research;
+      $$("[data-issue]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.issue === x.id)));
+      $("#issuePanel").innerHTML = `
+        <div class="issue-grid">
+          <div class="card issue-card">
+            <span class="eyebrow">The issue</span>
+            <h2>${esc(x.name)}</h2>
+            <p>${gloss(esc(x.issue))}${cite(x.ref)}</p>
+            ${x.safeguards ? `<h4>Possible safeguards</h4>${chipList(x.safeguards)}` : ""}
+            ${x.table ? `<h4>Who is responsible for what (Table 6)</h4><dl class="resp-table">${x.table.map((t) => `<dt>${esc(t.who)}</dt><dd>${esc(t.what)}</dd>`).join("")}</dl><p class="small muted">Distributed responsibility should not become fragmented accountability.</p>` : ""}
+          </div>
+          <div class="card issue-card research lab-bvdl">
+            <span class="eyebrow">Turned into research</span>
+            <h2>${esc(r.title)}</h2>
+            <p><strong>Problem.</strong> ${esc(r.problem)}</p>
+            <p class="rq">${esc(r.question)}</p>
+            <p><strong>Study concept.</strong> ${esc(r.design)}</p>
+            <h4>Invisible determinants it would look at</h4>${chipList(r.determinants)}
+            <h4>Partners and data sources</h4>${chipList(r.partners)}
+          </div>
+        </div>`;
+    };
+    $$("[data-issue]").forEach((b) => b.addEventListener("click", () => { issueState.id = b.dataset.issue; render(); }));
+    render();
+  }
+
+  /* ================================================================
+     ETL: European Translation Lab
+     ================================================================ */
+  function viewEtl() {
+    const L = lab("etl");
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">Sub-group 3 · ${esc(L.role)}</span>
+      <h1>${esc(L.name)}</h1>
+      <p class="lede">${esc(L.question)} ETL argues that Invisible Context is not a local shortfall but a structural feature of European health systems, measurable, shared and cross-border, and it maps the European routes to act on it.</p>
+    </div>
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <span class="eyebrow">It is measurable</span>
+      <h2>A structural gap, reproduced across Europe</h2>
+      <div class="numbers" style="margin-top:20px">${D.MEASURES.map((m) => `<div class="card stat"><div class="v">${esc(m.value)}</div><div class="l">${esc(m.label)}${cite(m.ref)}</div></div>`).join("")}</div>
+    </div></section>
+
+    <section class="section"><div class="wrap split" style="align-items:start">
+      <div>
+        <span class="eyebrow">Why Europe</span>
+        <h2>European by nature</h2>
+        ${D.WHY_EUROPE.map((w) => `<div class="card why"><h3>${esc(w.title)}</h3><p>${esc(w.text)}${cite(w.ref)}</p></div>`).join("")}
+      </div>
+      <div>
+        <span class="eyebrow">Why now</span>
+        <h2>A window that is open now</h2>
+        ${D.WHY_NOW.map((w) => `<div class="card why"><h3>${esc(w.title)}</h3><p>${gloss(esc(w.text))}${cite(w.ref)}</p></div>`).join("")}
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">The LEAD lens · Table 7</span>
+      <h2>From data to wisdom: where the capital is missing</h2>
+      <p class="lede">The LEAD framework reads informatics as turning data into knowledge and, ultimately, wisdom, sustained by information intellectual capital and mediated by language, education and leadership. Invisible Context is a deficit in each form of capital.</p>
+      <div class="capitals">${D.CAPITALS.map((c) => `<div class="card"><h3>${esc(c.name)}</h3><p class="muted" style="margin:0">${esc(c.deficit)}</p></div>`).join("")}</div>
+      <ol class="ladder">
+        ${D.KEYWORDS.map((k) => `<li class="card">
+          <div class="rung"><h3>${esc(k.step)}</h3>${k.capital ? `<span class="chip">${esc(k.capital)}</span>` : ""}</div>
+          <div><h4>In ETL's argument</h4><p>${esc(k.where)}</p></div>
+          <div><h4>European contribution</h4><p>${gloss(esc(k.europe))}${cite(k.ref)}</p></div>
+        </li>`).join("")}
+      </ol>
+    </div></section>`;
+  }
+
+  // Figure 2 / Table 8: European Opportunity Matrix
+  const oppState = { dim: "environment" };
+  function viewOpportunity() {
+    const cols = D.LAYERS;
+    const rows = D.OPPORTUNITY.map((o) => `<tr data-dim="${o.dim}" tabindex="0" aria-selected="false">
+      <th>${esc(dim(o.dim).name)}</th>
+      ${cols.map((l) => o.layers.includes(l.id) ? `<td class="on" style="background:${l.color}" title="${esc(l.name)}">${l.n}</td>` : `<td></td>`).join("")}
+    </tr>`).join("");
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">ETL · Figure 2 and Table 8</span>
+      <h1>The European Opportunity Matrix</h1>
+      <p class="lede">The matrix reads from left to right: from the Grand Challenge, through the layers of invisibility and the ODH dimensions, to why Europe should act, what it would gain, and how. It is a first exploratory framework, not a final solution.</p>
+    </div>
+    <div class="wrap">
+      <ol class="flow7">${D.MATRIX_FLOW.map((c, i) => `<li class="card"><span class="ph-n">${i + 1}</span><h3>${esc(c.title)}</h3>${list(c.items)}</li>`).join("")}</ol>
+    </div>
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">Dimensions × layers</span>
+      <h2>Where each ODH dimension is invisible</h2>
+      <p class="lede">Select a dimension to see what stays invisible, why European action adds value, and which European instrument it can build on.</p>
+      <div class="opp-layout">
+        <div class="card" style="padding:16px">
+          <div class="grid-scroll"><table class="cov opp">
+            <thead><tr><th></th>${cols.map((l) => `<th title="${esc(l.name)}"><span class="ln-s" style="background:${l.color}">${l.n}</span><span class="sub">${esc(l.name)}</span></th>`).join("")}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table></div>
+          <div id="oppWheel" class="opp-wheel">${wheelSVG({ mini: true })}</div>
+          <p class="small muted" style="margin:6px 4px 0">The wheel highlights the dimension and the IFAL archetypes that sit on it.</p>
+        </div>
+        <div class="card panel" id="oppPanel" aria-live="polite"></div>
+      </div>
+    </div></section>`;
+  }
+  function bindOpportunity() {
+    const render = () => {
+      const o = D.OPPORTUNITY.find((x) => x.dim === oppState.dim);
+      $$("table.opp tr[data-dim]").forEach((tr) => tr.setAttribute("aria-selected", String(tr.dataset.dim === o.dim)));
+      paintWheel($("#oppWheel svg"), { kind: "dimension", id: o.dim });
+      const arch = matchArchetypes("dimension", o.dim);
+      $("#oppPanel").innerHTML = `
+        <span class="eyebrow">ODH dimension</span>
+        <h2>${esc(dim(o.dim).name)}</h2>
+        <div class="chips" style="margin-bottom:14px">${o.layers.map(layerBadge).join("")}</div>
+        <dl class="opp-dl"><dt>What stays invisible</dt><dd>${esc(o.invisible)}</dd>
+        <dt>European added value</dt><dd>${esc(o.value)}</dd>
+        <dt>European anchor</dt><dd>${gloss(esc(o.anchor))}${cite(o.ref)}</dd></dl>
+        <h4 class="small muted" style="margin:16px 0 8px">IFAL archetypes on this dimension</h4>
+        <div class="chips">${arch.length ? arch.map(archBadge).join("") : '<span class="small muted">None</span>'}</div>`;
+    };
+    const pick = (d) => { oppState.dim = d; render(); };
+    $$("table.opp tr[data-dim]").forEach((tr) => {
+      tr.addEventListener("click", () => pick(tr.dataset.dim));
+      tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(tr.dataset.dim); } });
+    });
+    render();
+  }
+
+  function viewGates() {
+    const GI = D.GATE_IN, GO = D.GATE_OUT;
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">ETL · section 3.4</span>
+      <h1>ETL's two gates</h1>
+      <p class="lede">ETL connects the cohort's loop: it receives one question from BVDL and passes another to IFAL.</p>
+    </div>
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <div class="gate-head">${labTag("bvdl")}<span class="gate-arrow" aria-hidden="true">→</span>${labTag("etl")}</div>
+      <h2>"${esc(GI.question)}"</h2>
+      <p class="lede">ETL asks itself six questions from the European side, and names what it needs from BVDL for each.</p>
+      <div class="gate-list">
+        ${GI.rows.map((r, i) => `<details class="card gate"${i === 0 ? " open" : ""}><summary><span class="ph-n">${i + 1}</span>${esc(r.q)}</summary>
+          <div class="gate-body"><div><h4>ETL's European reading</h4><p>${gloss(esc(r.etl))}${cite(r.ref)}</p></div><div><h4>Input from BVDL</h4><p>${esc(r.bvdl)}</p></div></div></details>`).join("")}
+      </div>
+    </div></section>
+    <section class="section"><div class="wrap">
+      <div class="gate-head">${labTag("etl")}<span class="gate-arrow" aria-hidden="true">→</span>${labTag("ifal")}</div>
+      <h2>"${esc(GO.question)}"</h2>
+      <p class="lede">${esc(GO.intro)}</p>
+      <div class="crit-grid">
+        ${GO.criteria.map((c) => `<div class="card crit"><h3>${esc(c.name)}</h3><p class="rq">${esc(c.q)}</p><p class="small muted" style="margin:0"><strong>Evidence:</strong> ${esc(c.evidence)}${cite(c.ref)}</p></div>`).join("")}
+      </div>
+      <p class="small muted" style="margin-top:12px">These criteria have not yet been applied to the five archetypes; that is the task of IFAL's next iteration.</p>
+    </div></section>
+    <section class="section"><div class="wrap split" style="align-items:start">
+      <div><span class="eyebrow">Open questions</span><h3>ETL asks IFAL</h3>${list(D.OPEN_QUESTIONS.ifal, "qlist")}</div>
+      <div><span class="eyebrow">&nbsp;</span><h3>ETL asks BVDL</h3>${list(D.OPEN_QUESTIONS.bvdl, "qlist")}</div>
+    </div></section>`;
+  }
+
+  const pathState = { focus: "both" };
+  function viewPathways() {
+    const F = D.FUNDING;
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">ETL · section 3.5 and Table 11</span>
+      <h1>European pathways</h1>
+      <p class="lede">${gloss(esc(F.intro))}${cite(F.ref)}</p>
+    </div>
+    <div class="wrap" style="padding-bottom:24px">
+      <div class="seg-ctrl" role="tablist" aria-label="Compare instruments">
+        <button role="tab" data-focus="both" aria-selected="true">Compare both</button>
+        <button role="tab" data-focus="cost" aria-selected="false">COST Action</button>
+        <button role="tab" data-focus="erasmus" aria-selected="false">Erasmus+</button>
+      </div>
+      <div class="card compare" id="compare" data-focus="both">
+        <div class="cmp-row cmp-head"><div></div><div class="c-cost">COST Action</div><div class="c-erasmus">Erasmus+ Cooperation Partnership</div></div>
+        ${F.rows.map((r) => `<div class="cmp-row"><div class="cmp-k">${esc(r.k)}</div><div class="c-cost">${esc(r.cost)}</div><div class="c-erasmus">${esc(r.erasmus)}</div></div>`).join("")}
+      </div>
+    </div>
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">ETL's slot in the shared problem statement</span>
+      <h2>A European ODH approach</h2>
+      <p class="lede">ETL provisionally proposes the last slot of the cohort's shared statement: five pillars that a European initiative would combine.</p>
+      <ol class="pillars">${D.STATEMENT.pillars.map((p, i) => `<li class="card"><span class="ph-n">${i + 1}</span>${gloss(esc(p))}</li>`).join("")}</ol>
+      ${statementHTML({ response: esc(D.STATEMENT.response.charAt(0).toLowerCase() + D.STATEMENT.response.slice(1)) })}
+    </div></section>`;
+  }
+  function bindPathways() {
+    $$("[data-focus]").forEach((b) => b.addEventListener("click", () => {
+      pathState.focus = b.dataset.focus;
+      $("#compare").dataset.focus = pathState.focus;
+      $$("[data-focus]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.focus === pathState.focus)));
+    }));
+    $("#compare").dataset.focus = pathState.focus;
+    $$("button[data-focus]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.focus === pathState.focus)));
+  }
+
+  /* ---------------------------------------------------------------- GUIDE */
+  // Reading paths by time available, and starting points by LEAD entry profile
+  const GUIDE_PATHS = [
+    { time: "2 min", title: "The big picture", steps: [
+      ["#/", "Open the patient record on the home page and reveal each field"],
+      ["#/", "Scroll to \"Three labs, one loop\" to see how the work was split"] ] },
+    { time: "10 min", title: "Follow one invisibility", steps: [
+      ["#/archetype/2", "Pick an archetype, for example Environmental Determinant Blindness"],
+      ["#/archetype/2", "Use the Diagnose · Design · Translate buttons under the title to jump along the thread"],
+      ["#/archetype/2", "End at step 4: the shared problem statement, filled in"] ] },
+    { time: "30 min", title: "Go deep in one lab", steps: [
+      ["#/ifal", "Diagnose: the map, the five layers and who carries the burden"],
+      ["#/bvdl", "Design: data sources, standards, ODHness and research questions"],
+      ["#/etl", "Translate: why Europe, the Opportunity Matrix and funding routes"] ] }
+  ];
+  const GUIDE_PROFILES = [
+    { id: "clin-prac", name: "Clinical practitioner", hook: "You know these decisions from the ward.",
+      go: [["#/", "The patient record", "A discharge that looks safe until you reveal what the record misses."], ["#/archetype/4", "Patient Narrative Absence", "Preferences and caregivers that never reach the chart."], ["#/people", "Stakeholders", "Where clinicians sit in the burden."]] },
+    { id: "clin-acad", name: "Clinical academic", hook: "You want the evidence and how it was framed.",
+      go: [["#/challenge", "The Challenge", "The evidence in brief and the five kinds of absence."], ["#/layers", "Five layers", "The diagnostic instrument and the self-reinforcing cycle."], ["#/etl/gates", "ETL's criteria", "How an invisibility qualifies as a European priority."]] },
+    { id: "eng-prac", name: "Engineering practitioner", hook: "You want to know what would have to be built.",
+      go: [["#/bvdl/infrastructure", "Data infrastructure", "Sources, capture instruments and analytical processes."], ["#/bvdl/responses", "Visibility responses", "One BMHI response per layer and per archetype."], ["#/bvdl", "Interoperability", "Semantic, technical and governance interoperability."]] },
+    { id: "eng-acad", name: "Engineering academic", hook: "You want the open questions.",
+      go: [["#/bvdl/issues", "Issues and research", "Four study designs, with data and partners."], ["#/bvdl/odhness", "ODHness", "A proposed metric for visibility maturity."], ["#/map", "The ODH wheel", "Where each archetype sits in One Digital Health."]] }
+  ];
+  const GUIDE_CLICKS = [
+    ["#/", "Patient record", "Reveal each field, or all at once, to see the hidden context."],
+    ["#/map", "ODH Steering Wheel", "Select archetypes or wheel segments. Try Learn the wheel, Hotspots and Tour."],
+    ["#/bvdl/infrastructure", "Data infrastructure", "Select a determinant family or a data source to see what connects."],
+    ["#/bvdl/odhness", "ODHness circles", "Select a circle for each digital domain."],
+    ["#/bvdl/issues", "Issue tabs", "Each issue sits next to the study that would research it."],
+    ["#/etl/opportunity", "Opportunity Matrix", "Select a dimension row; the wheel shows which archetypes sit there."],
+    ["#/etl/gates", "Gate questions", "Open each question to see ETL's reading and BVDL's input."],
+    ["#/etl/pathways", "COST vs Erasmus+", "Compare both, or focus on one instrument."]
+  ];
+  const guideState = { profile: "clin-prac" };
+  function viewGuide() {
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">How to use this site</span>
+      <h1>A guide in three minutes</h1>
+      <p class="lede">This site follows one question through three labs: <em>which health context stays invisible, how could BMHI make it visible, and why should Europe act?</em> Choose how much time you have, or start from where you come from.</p>
+    </div>
+
+    <section class="section" style="padding-top:24px"><div class="wrap">
+      <span class="eyebrow">1 · Choose your time</span>
+      <h2>Three ways to read it</h2>
+      <div class="paths">
+        ${GUIDE_PATHS.map((p) => `<div class="card path"><span class="path-time">${esc(p.time)}</span><h3>${esc(p.title)}</h3>
+          <ol>${p.steps.map(([h, t]) => `<li><a href="${h}">${esc(t)}</a></li>`).join("")}</ol></div>`).join("")}
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">2 · Or start from your profile</span>
+      <h2>Where to begin</h2>
+      <p class="lede">The LEAD cohort comes from four backgrounds. Each has a natural way in.</p>
+      <div class="tabs" role="tablist">${GUIDE_PROFILES.map((p) => `<button role="tab" data-profile="${p.id}" aria-selected="${p.id === guideState.profile}">${esc(p.name)}</button>`).join("")}</div>
+      <div id="profilePanel" role="tabpanel" aria-live="polite"></div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">3 · Learn the code</span>
+      <h2>Colours, dots and numbers</h2>
+      <div class="legend-grid">
+        <div class="card"><h3>Three labs</h3>
+          ${D.LABS.map((l) => `<p class="legend-row">${labTag(l.id)}<span class="small muted">${esc(l.question)}</span></p>`).join("")}
+          <p class="small muted" style="margin:0">The strip under the top bar tells you which lab a page belongs to.</p></div>
+        <div class="card"><h3>Five layers</h3>
+          <div class="chips">${D.LAYERS.map((l) => layerBadge(l.id)).join("")}</div>
+          <p class="small muted" style="margin:10px 0 0">The same colours mark the layers everywhere: on archetypes, in BVDL's responses and in ETL's matrix.</p></div>
+        <div class="card"><h3>Words and sources</h3>
+          <p class="legend-row"><span class="gloss" tabindex="0" data-gloss="ODHness">Dotted words</span><span class="small muted">show a definition on hover or tap. All of them are in the <a href="#/glossary">glossary</a>.</span></p>
+          <p class="legend-row"><span class="cite" style="font-size:1rem;vertical-align:0">[2]</span><span class="small muted">Small numbers are references. Select one to jump to the full source.</span></p></div>
+      </div>
+    </div></section>
+
+    <section class="section"><div class="wrap">
+      <span class="eyebrow">4 · Things you can click</span>
+      <h2>Eight interactive pieces</h2>
+      <div class="clicks">${GUIDE_CLICKS.map(([h, t, d], i) => `<a class="card click" href="${h}"><span class="ph-n">${i + 1}</span><span><strong>${esc(t)}</strong><span class="small muted">${esc(d)}</span></span></a>`).join("")}</div>
+      <p class="small muted" style="margin-top:16px">Every page has its own address, so you can copy the link to share a specific view. The moon button switches dark mode. This site follows a draft of 21 October 2026 and will change as the cohort's document does.</p>
+    </div></section>`;
+  }
+  function bindGuide() {
+    const render = () => {
+      const p = GUIDE_PROFILES.find((x) => x.id === guideState.profile);
+      $$("[data-profile]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.profile === p.id)));
+      $("#profilePanel").innerHTML = `<p class="closing" style="margin-top:0">${esc(p.hook)}</p>
+        <div class="profile-go">${p.go.map(([h, t, d], i) => `<a class="card click" href="${h}"><span class="ph-n">${i + 1}</span><span><strong>${esc(t)} →</strong><span class="small muted">${esc(d)}</span></span></a>`).join("")}</div>`;
+    };
+    $$("[data-profile]").forEach((b) => b.addEventListener("click", () => { guideState.profile = b.dataset.profile; render(); }));
+    render();
+  }
+
+  /* ---------------------------------------------------------------- GLOSSARY */
+  function viewGlossary() {
+    const terms = Object.keys(D.GLOSSARY).sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+    return `
+    <div class="wrap page-head">
+      <span class="eyebrow">Glossary</span>
+      <h1>Terms used across the three labs</h1>
+      <p class="lede">The cohort comes from engineering and clinical backgrounds, in practice and in academia. These are the terms that most often need translating between them. Dotted terms elsewhere on the site show these definitions on hover or tap.</p>
+    </div>
+    <div class="wrap" style="padding-bottom:56px">
+      <dl class="glossary">${terms.map((t) => { const [head, ...rest] = D.GLOSSARY[t].split(": "); const full = rest.length && head !== t ? head : ""; return `<div class="card g-item"><dt>${esc(t)}${full ? `<span class="muted"> · ${esc(full)}</span>` : ""}</dt><dd>${esc(rest.length ? rest.join(": ") : D.GLOSSARY[t])}</dd></div>`; }).join("")}</dl>
+    </div>`;
+  }
+
   /* ---------------------------------------------------------------- ABOUT */
   function viewAbout() {
     return `
     <div class="wrap page-head">
-      <span class="eyebrow">About this map</span>
-      <h1>About this map</h1>
+      <span class="eyebrow">About this site</span>
+      <h1>The cohort, sources and method</h1>
     </div>
     <div class="wrap" style="padding-bottom:56px">
       <div class="prose">
-        <p class="lede">${gloss("This site presents the Context Invisibility Map (v0.2) produced by Sub-Group 1 of the EFMI LEAD 2026 Bootcamp, held at MIE 2026. The bootcamp's Grand Challenge is Invisible Context: a One Digital Health exploration of the hidden determinants that remain unseen, unshared or unusable in BMHI systems.")}</p>
-        <p>Sub-Group 1, the <strong>Invisible Failure Analysis Lab (IFAL)</strong>, is the diagnostic component of a three-lab design. Its task is to identify which contextual determinants of human, animal and environmental health are most systematically invisible, to whom, and through which mechanisms. It does not propose solutions; its diagnosis is passed on to the other two labs.</p>
+        <p class="lede">${gloss("This site presents The Grand Challenge, the shared work of the EFMI LEAD cohort: an exploration, within One Digital Health, of the hidden determinants that remain unseen, unshared or unusable in BMHI systems. It is an educational companion to the cohort's document, written so that engineers and clinicians, practitioners and academics can follow it.")}</p>
+        <p>${esc(D.META.version)}. The document is a work in progress and will be updated; this site follows it. Feedback is welcome.</p>
       </div>
+      <h2 style="margin-top:32px">The cohort</h2>
       <div class="labs">
-        <div class="card me"><span class="eyebrow" style="margin-bottom:4px">Sub-Group 1 · this map</span><h4>Invisible Failure Analysis Lab</h4><p class="small muted" style="margin:0">Which determinants are most systematically invisible, and to whom?</p></div>
-        <div class="card"><span class="eyebrow" style="margin-bottom:4px">Sub-Group 2</span><h4>BMHI Visibility Design Lab</h4><p class="small muted" style="margin:0">What forms of BMHI visibility could capture them?</p></div>
-        <div class="card"><span class="eyebrow" style="margin-bottom:4px">Sub-Group 3</span><h4>European Translation Lab</h4><p class="small muted" style="margin:0">Why is this strategically European?</p></div>
+        ${D.LABS.map((l) => `<div class="card lab-${l.id} lab-about"><span class="eyebrow" style="margin-bottom:4px">Sub-group ${l.n} · ${esc(l.verb)}</span><h4>${esc(l.name)} (${esc(l.short)})</h4><p class="small muted">${esc(l.question)}</p>${list(l.members, "members")}${l.thanks ? `<p class="small muted" style="margin:0">With special thanks to ${l.thanks.map(esc).join(", ")}</p>` : ""}</div>`).join("")}
       </div>
       <div class="prose">
+        <p>${esc(D.ACKNOWLEDGEMENTS.text)}</p>
+        <p>${gloss("LEAD (EducationaL EFMI Assembly Designed for BMHI) was established by the Young EFMI Workgroup (yEFMI) of the European Federation for Medical Informatics in October 2025, at the EFMI Special Topic Conference in Osnabrück. The Grand Challenge was set at MIE 2026 in Genova.")}</p>
         <h2>Method in brief</h2>
-        <p>The map is anchored on <strong>decisions</strong>: a determinant counts as invisible only in relation to a decision it should have informed. Five <strong>archetypes</strong> (recurring classes of decision failure) were selected so that together they span all five layers of invisibility and all three ODH perspectives. Each is placed on the layers and on the ODH Steering Wheel, and grounded in the six seed publications below.</p>
-        <p class="small muted">The patient record on the home page is an illustrative example that combines decision failures described in the map; it is not a real case. Figures are reported as given in the cited sources; the provider-documentation figures come from a single-centre survey of 201 providers.${cite(6)}</p>
-        <h2>Team</h2>
-        <p>${D.META.authors.map(esc).join(" · ")}</p>
+        <p><strong>IFAL</strong> anchors the map on decisions: a determinant counts as invisible only in relation to a decision it should have informed. Five archetypes were selected so that together they span all five layers and all three ODH perspectives, grounded in six seed publications.${cite([1, 2, 3, 4, 5, 6])}</p>
+        <p><strong>BVDL</strong> translates each layer and archetype into BMHI responses, maps data sources and capture instruments, and turns implementation issues into research questions.</p>
+        <p><strong>ETL</strong> tests the European relevance of the problem against the ODH dimensions, European legislation and funding instruments, and proposes prioritisation criteria for the next iteration.</p>
+        <p class="small muted">The patient record on the home page is an illustrative example that combines decision failures described in the map; it is not a real case. Figures are reported as given in the cited sources; the provider-documentation figures come from a single-centre survey of 201 providers.${cite(4)} The problem statements on the archetype pages are assembled on this site from the labs' tables and have not been validated by the labs. Text has been condensed from the document into a plain register.</p>
         <h2 id="refs">References</h2>
-        <ol class="refs">${D.REFERENCES.map((r) => `<li id="ref-${r.n}">${esc(r.text)} <a href="https://doi.org/${r.doi}" target="_blank" rel="noopener">https://doi.org/${r.doi}</a></li>`).join("")}</ol>
+        <ol class="refs">${D.REFERENCES.map((r) => `<li id="ref-${r.n}">${esc(r.text)}${refLink(r)}</li>`).join("")}</ol>
       </div>
     </div>`;
   }
@@ -850,12 +1608,26 @@
   /* ================================================================
      Router
      ================================================================ */
+  // lab: the lab section a page belongs to (adds its strip and highlights its nav item)
   const routes = [
     { re: /^\/?$/, name: "home", view: viewHome, bind: bindHome, title: "" },
-    { re: /^\/map$/, name: "map", view: viewMap, bind: bindMap, title: "The Map" },
-    { re: /^\/archetype\/(\d)$/, name: "archetype", view: (m) => viewArchetype(m[1]), bind: (m) => bindArchetype(m[1]), title: (m) => (byN(m[1]) || {}).name },
-    { re: /^\/layers$/, name: "layers", view: viewLayers, bind: null, title: "Five layers of invisibility" },
-    { re: /^\/people$/, name: "people", view: viewPeople, bind: bindPeople, title: "Affected stakeholders" },
+    { re: /^\/challenge$/, name: "challenge", view: viewChallenge, bind: null, title: "The Grand Challenge" },
+    { re: /^\/ifal$/, name: "ifal", lab: "ifal", view: viewIfal, bind: null, title: "Invisible Failure Analysis Lab" },
+    { re: /^\/map$/, name: "map", lab: "ifal", view: viewMap, bind: bindMap, title: "The Map" },
+    { re: /^\/archetype\/(\d)$/, name: "archetype", lab: "ifal", view: (m) => viewArchetype(m[1]), bind: (m) => bindArchetype(m[1]), title: (m) => (byN(m[1]) || {}).name },
+    { re: /^\/layers$/, name: "layers", lab: "ifal", view: viewLayers, bind: null, title: "Five layers of invisibility" },
+    { re: /^\/people$/, name: "people", lab: "ifal", view: viewPeople, bind: bindPeople, title: "Affected stakeholders" },
+    { re: /^\/bvdl$/, name: "bvdl", lab: "bvdl", view: viewBvdl, bind: null, title: "BMHI Visibility Design Lab" },
+    { re: /^\/bvdl\/infrastructure$/, name: "infrastructure", lab: "bvdl", view: viewInfrastructure, bind: bindInfrastructure, title: "Data infrastructure" },
+    { re: /^\/bvdl\/responses$/, name: "responses", lab: "bvdl", view: viewResponses, bind: null, title: "Visibility responses" },
+    { re: /^\/bvdl\/odhness$/, name: "odhness", lab: "bvdl", view: viewOdhness, bind: bindOdhness, title: "ODHness" },
+    { re: /^\/bvdl\/issues$/, name: "issues", lab: "bvdl", view: viewIssues, bind: bindIssues, title: "Issues and research" },
+    { re: /^\/etl$/, name: "etl", lab: "etl", view: viewEtl, bind: null, title: "European Translation Lab" },
+    { re: /^\/etl\/opportunity$/, name: "opportunity", lab: "etl", view: viewOpportunity, bind: bindOpportunity, title: "European Opportunity Matrix" },
+    { re: /^\/etl\/gates$/, name: "gates", lab: "etl", view: viewGates, bind: null, title: "Two gates" },
+    { re: /^\/etl\/pathways$/, name: "pathways", lab: "etl", view: viewPathways, bind: bindPathways, title: "European pathways" },
+    { re: /^\/guide$/, name: "guide", view: viewGuide, bind: bindGuide, title: "How to use this site" },
+    { re: /^\/glossary$/, name: "glossary", view: viewGlossary, bind: null, title: "Glossary" },
     { re: /^\/about$/, name: "about", view: viewAbout, bind: null, title: "About" }
   ];
 
@@ -864,11 +1636,12 @@
     let route = null, m = null;
     for (const r of routes) { m = path.match(r.re); if (m) { route = r; break; } }
     if (!route) { main.innerHTML = viewNotFound(); setActive(""); return; }
-    main.innerHTML = `<div class="view-enter">${route.view(m)}</div>`;
+    const body = route.view(m);
+    main.innerHTML = `<div class="view-enter${route.lab ? ` in-lab lab-${route.lab}` : ""}">${route.lab ? labStrip(route.lab, route.name) : ""}${body}</div>`;
     if (route.bind) route.bind(m);
-    setActive(route.name);
+    setActive(route.lab || route.name);
     const t = typeof route.title === "function" ? route.title(m) : route.title;
-    document.title = t ? `${t} · The Invisible Context` : "The Invisible Context";
+    document.title = t ? `${t} · (In)Visible Health` : "(In)Visible Health";
     window.scrollTo(0, 0);
     $("#nav").classList.remove("open");
     $("#menuBtn").setAttribute("aria-expanded", "false");
@@ -940,6 +1713,8 @@
       if (location.hash !== "#/about") { location.hash = "#/about"; setTimeout(go, 80); } else go();
     }
   });
+  // keyboard skip link: move focus without changing the hash route
+  $(".skip").addEventListener("click", (e) => { e.preventDefault(); main.focus(); });
   window.addEventListener("scroll", hideTip, { passive: true });
 
   window.addEventListener("hashchange", router);
