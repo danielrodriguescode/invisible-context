@@ -108,6 +108,12 @@ p { margin: 0 0 1em; }
 .topbar { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .topbar-inner { max-width: 1160px; margin: 0 auto; padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 @media (min-width: 720px) { .topbar-inner { padding: 0 32px; } }
+.topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.back-btn { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 12px 0 8px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: .88rem; font-weight: 600; cursor: pointer; flex: none; }
+.back-btn[hidden] { display: none; }
+.back-btn:hover { border-color: var(--ink-2); background: var(--ghost); }
+.back-btn svg { width: 18px; height: 18px; }
+@media (max-width: 420px) { .back-btn span { display: none; } .back-btn { padding: 0 9px; } .brand { font-size: 1rem; } }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 600; font-size: 1.08rem; white-space: nowrap; }
 .brand-mark { width: 28px; height: 28px; color: var(--ink); }
 .nav { display: flex; align-items: center; gap: 4px; }
@@ -655,21 +661,6 @@ table.opp tr:focus-visible th { outline: 2px solid var(--accent); }
 }
 .pillars { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
 .pillars li { padding: 16px; display: flex; flex-direction: column; gap: 10px; border-top: 4px solid var(--etl); font-weight: 500; }
-
-/* ---------------------------------------------------------------- guide */
-.paths { display: grid; gap: 14px; margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
-.path { padding: 20px 22px; }
-.path-time { display: inline-block; font-family: var(--display); font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
-.path ol { margin: 8px 0 0; padding-left: 20px; }
-.path li { margin-bottom: 8px; font-size: .95rem; }
-.legend-grid { display: grid; gap: 14px; margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
-.legend-grid .card { padding: 20px; }
-.legend-row { display: flex; gap: 12px; align-items: baseline; margin: 0 0 10px; }
-.legend-row .lab-tag { flex: none; }
-.clicks, .profile-go { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
-.click { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; text-decoration: none; transition: transform .2s ease; }
-.click:hover { transform: translateY(-2px); }
-.click > span:last-child { display: flex; flex-direction: column; gap: 2px; }
 
 /* ---------------------------------------------------------------- glossary and about */
 .glossary { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); margin: 0; }

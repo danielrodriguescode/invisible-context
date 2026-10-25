@@ -333,7 +333,6 @@
           <a class="btn" href="#/challenge">Start with the challenge →</a>
           <button class="btn ghost" data-scroll="labs">Meet the three labs</button>
         </div>
-        <p class="small muted" style="margin-top:14px">New here? <a href="#/guide">A three-minute guide to this site →</a></p>
       </div>
       <div class="card record" id="record">
         <div class="record-head"><span class="who">${esc(st.patient)}</span><span class="tag">Electronic health record</span></div>
@@ -1462,101 +1461,6 @@
     $$("button[data-focus]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.focus === pathState.focus)));
   }
 
-  /* ---------------------------------------------------------------- GUIDE */
-  // Reading paths by time available, and starting points by LEAD entry profile
-  const GUIDE_PATHS = [
-    { time: "2 min", title: "The big picture", steps: [
-      ["#/", "Open the patient record on the home page and reveal each field"],
-      ["#/", "Scroll to \"Three labs, one loop\" to see how the work was split"] ] },
-    { time: "10 min", title: "Follow one invisibility", steps: [
-      ["#/archetype/2", "Pick an archetype, for example Environmental Determinant Blindness"],
-      ["#/archetype/2", "Use the Diagnose · Design · Translate buttons under the title to jump along the thread"],
-      ["#/archetype/2", "End at step 4: the shared problem statement, filled in"] ] },
-    { time: "30 min", title: "Go deep in one lab", steps: [
-      ["#/ifal", "Diagnose: the map, the five layers and who carries the burden"],
-      ["#/bvdl", "Design: data sources, standards, ODHness and research questions"],
-      ["#/etl", "Translate: why Europe, the Opportunity Matrix and funding routes"] ] }
-  ];
-  const GUIDE_PROFILES = [
-    { id: "clin-prac", name: "Clinical practitioner", hook: "You know these decisions from the ward.",
-      go: [["#/", "The patient record", "A discharge that looks safe until you reveal what the record misses."], ["#/archetype/4", "Patient Narrative Absence", "Preferences and caregivers that never reach the chart."], ["#/people", "Stakeholders", "Where clinicians sit in the burden."]] },
-    { id: "clin-acad", name: "Clinical academic", hook: "You want the evidence and how it was framed.",
-      go: [["#/challenge", "The Challenge", "The evidence in brief and the five kinds of absence."], ["#/layers", "Five layers", "The diagnostic instrument and the self-reinforcing cycle."], ["#/etl/gates", "ETL's criteria", "How an invisibility qualifies as a European priority."]] },
-    { id: "eng-prac", name: "Engineering practitioner", hook: "You want to know what would have to be built.",
-      go: [["#/bvdl/infrastructure", "Data infrastructure", "Sources, capture instruments and analytical processes."], ["#/bvdl/responses", "Visibility responses", "One BMHI response per layer and per archetype."], ["#/bvdl", "Interoperability", "Semantic, technical and governance interoperability."]] },
-    { id: "eng-acad", name: "Engineering academic", hook: "You want the open questions.",
-      go: [["#/bvdl/issues", "Issues and research", "Four study designs, with data and partners."], ["#/bvdl/odhness", "ODHness", "A proposed metric for visibility maturity."], ["#/map", "The ODH wheel", "Where each archetype sits in One Digital Health."]] }
-  ];
-  const GUIDE_CLICKS = [
-    ["#/", "Patient record", "Reveal each field, or all at once, to see the hidden context."],
-    ["#/map", "ODH Steering Wheel", "Select archetypes or wheel segments. Try Learn the wheel, Hotspots and Tour."],
-    ["#/bvdl/infrastructure", "Data infrastructure", "Select a determinant family or a data source to see what connects."],
-    ["#/bvdl/odhness", "ODHness circles", "Select a circle for each digital domain."],
-    ["#/bvdl/issues", "Issue tabs", "Each issue sits next to the study that would research it."],
-    ["#/etl/opportunity", "Opportunity Matrix", "Select a dimension row; the wheel shows which archetypes sit there."],
-    ["#/etl/gates", "Gate questions", "Open each question to see ETL's reading and BVDL's input."],
-    ["#/etl/pathways", "COST vs Erasmus+", "Compare both, or focus on one instrument."]
-  ];
-  const guideState = { profile: "clin-prac" };
-  function viewGuide() {
-    return `
-    <div class="wrap page-head">
-      <span class="eyebrow">How to use this site</span>
-      <h1>A guide in three minutes</h1>
-      <p class="lede">This site follows one question through three labs: <em>which health context stays invisible, how could BMHI make it visible, and why should Europe act?</em> Choose how much time you have, or start from where you come from.</p>
-    </div>
-
-    <section class="section" style="padding-top:24px"><div class="wrap">
-      <span class="eyebrow">1 · Choose your time</span>
-      <h2>Three ways to read it</h2>
-      <div class="paths">
-        ${GUIDE_PATHS.map((p) => `<div class="card path"><span class="path-time">${esc(p.time)}</span><h3>${esc(p.title)}</h3>
-          <ol>${p.steps.map(([h, t]) => `<li><a href="${h}">${esc(t)}</a></li>`).join("")}</ol></div>`).join("")}
-      </div>
-    </div></section>
-
-    <section class="section"><div class="wrap">
-      <span class="eyebrow">2 · Or start from your profile</span>
-      <h2>Where to begin</h2>
-      <p class="lede">The LEAD cohort comes from four backgrounds. Each has a natural way in.</p>
-      <div class="tabs" role="tablist">${GUIDE_PROFILES.map((p) => `<button role="tab" data-profile="${p.id}" aria-selected="${p.id === guideState.profile}">${esc(p.name)}</button>`).join("")}</div>
-      <div id="profilePanel" role="tabpanel" aria-live="polite"></div>
-    </div></section>
-
-    <section class="section"><div class="wrap">
-      <span class="eyebrow">3 · Learn the code</span>
-      <h2>Colours, dots and numbers</h2>
-      <div class="legend-grid">
-        <div class="card"><h3>Three labs</h3>
-          ${D.LABS.map((l) => `<p class="legend-row">${labTag(l.id)}<span class="small muted">${esc(l.question)}</span></p>`).join("")}
-          <p class="small muted" style="margin:0">The strip under the top bar tells you which lab a page belongs to.</p></div>
-        <div class="card"><h3>Five layers</h3>
-          <div class="chips">${D.LAYERS.map((l) => layerBadge(l.id)).join("")}</div>
-          <p class="small muted" style="margin:10px 0 0">The same colours mark the layers everywhere: on archetypes, in BVDL's responses and in ETL's matrix.</p></div>
-        <div class="card"><h3>Words and sources</h3>
-          <p class="legend-row"><span class="gloss" tabindex="0" data-gloss="ODHness">Dotted words</span><span class="small muted">show a definition on hover or tap. All of them are in the <a href="#/glossary">glossary</a>.</span></p>
-          <p class="legend-row"><span class="cite" style="font-size:1rem;vertical-align:0">[2]</span><span class="small muted">Small numbers are references. Select one to jump to the full source.</span></p></div>
-      </div>
-    </div></section>
-
-    <section class="section"><div class="wrap">
-      <span class="eyebrow">4 · Things you can click</span>
-      <h2>Eight interactive pieces</h2>
-      <div class="clicks">${GUIDE_CLICKS.map(([h, t, d], i) => `<a class="card click" href="${h}"><span class="ph-n">${i + 1}</span><span><strong>${esc(t)}</strong><span class="small muted">${esc(d)}</span></span></a>`).join("")}</div>
-      <p class="small muted" style="margin-top:16px">Every page has its own address, so you can copy the link to share a specific view. The moon button switches dark mode. This site follows a draft of 21 October 2026 and will change as the cohort's document does.</p>
-    </div></section>`;
-  }
-  function bindGuide() {
-    const render = () => {
-      const p = GUIDE_PROFILES.find((x) => x.id === guideState.profile);
-      $$("[data-profile]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.profile === p.id)));
-      $("#profilePanel").innerHTML = `<p class="closing" style="margin-top:0">${esc(p.hook)}</p>
-        <div class="profile-go">${p.go.map(([h, t, d], i) => `<a class="card click" href="${h}"><span class="ph-n">${i + 1}</span><span><strong>${esc(t)} →</strong><span class="small muted">${esc(d)}</span></span></a>`).join("")}</div>`;
-    };
-    $$("[data-profile]").forEach((b) => b.addEventListener("click", () => { guideState.profile = b.dataset.profile; render(); }));
-    render();
-  }
-
   /* ---------------------------------------------------------------- GLOSSARY */
   function viewGlossary() {
     const terms = Object.keys(D.GLOSSARY).sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
@@ -1626,23 +1530,42 @@
     { re: /^\/etl\/opportunity$/, name: "opportunity", lab: "etl", view: viewOpportunity, bind: bindOpportunity, title: "European Opportunity Matrix" },
     { re: /^\/etl\/gates$/, name: "gates", lab: "etl", view: viewGates, bind: null, title: "Two gates" },
     { re: /^\/etl\/pathways$/, name: "pathways", lab: "etl", view: viewPathways, bind: bindPathways, title: "European pathways" },
-    { re: /^\/guide$/, name: "guide", view: viewGuide, bind: bindGuide, title: "How to use this site" },
     { re: /^\/glossary$/, name: "glossary", view: viewGlossary, bind: null, title: "Glossary" },
     { re: /^\/about$/, name: "about", view: viewAbout, bind: null, title: "About" }
   ];
 
+  // Pages visited in this session, so Back can name the previous page and
+  // return to where the reader was on it: [{ hash, title, y }]
+  const trail = [];
+  function track(hash) {
+    const top = trail[trail.length - 1], prev = trail[trail.length - 2];
+    if (top && top.hash === hash) return window.scrollY;          // re-render (e.g. theme toggle)
+    if (prev && prev.hash === hash) { trail.pop(); return prev.y; } // went back
+    if (top) top.y = window.scrollY;
+    trail.push({ hash, title: "", y: 0 });
+    return 0;
+  }
+  function updateBack() {
+    const prev = trail[trail.length - 2], btn = $("#backBtn");
+    btn.hidden = !prev;
+    if (prev) { btn.title = `Back to ${prev.title}`; btn.setAttribute("aria-label", `Back to ${prev.title}`); }
+  }
+
   function router() {
     const path = (location.hash || "#/").slice(1);
+    const y = track("#" + path);
     let route = null, m = null;
     for (const r of routes) { m = path.match(r.re); if (m) { route = r; break; } }
-    if (!route) { main.innerHTML = viewNotFound(); setActive(""); return; }
+    if (!route) { main.innerHTML = viewNotFound(); setActive(""); trail[trail.length - 1].title = "Page not found"; updateBack(); return; }
     const body = route.view(m);
     main.innerHTML = `<div class="view-enter${route.lab ? ` in-lab lab-${route.lab}` : ""}">${route.lab ? labStrip(route.lab, route.name) : ""}${body}</div>`;
     if (route.bind) route.bind(m);
     setActive(route.lab || route.name);
     const t = typeof route.title === "function" ? route.title(m) : route.title;
     document.title = t ? `${t} · (In)Visible Health` : "(In)Visible Health";
-    window.scrollTo(0, 0);
+    trail[trail.length - 1].title = t || "Home";
+    updateBack();
+    window.scrollTo({ top: y, behavior: "instant" });
     $("#nav").classList.remove("open");
     $("#menuBtn").setAttribute("aria-expanded", "false");
   }
@@ -1713,6 +1636,8 @@
       if (location.hash !== "#/about") { location.hash = "#/about"; setTimeout(go, 80); } else go();
     }
   });
+  $("#backBtn").addEventListener("click", () => history.back());
+
   // keyboard skip link: move focus without changing the hash route
   $(".skip").addEventListener("click", (e) => { e.preventDefault(); main.focus(); });
   window.addEventListener("scroll", hideTip, { passive: true });
