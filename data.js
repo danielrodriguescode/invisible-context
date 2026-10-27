@@ -91,7 +91,7 @@ window.LEAD = (function () {
     paths: [
       { time: "2 min", title: "The big picture", steps: [
         { scroll: "record", text: "Click each field of the patient record, or Show all" },
-        { scroll: "labs", text: "Scroll to Three labs, one loop" } ] },
+        { scroll: "labs", text: "Scroll to Three labs" } ] },
       { time: "10 min", title: "Follow one invisibility", steps: [
         { href: "#/archetype/1", text: "Open one of the five archetypes" },
         { text: "Use the Diagnose · Design · Translate buttons under its title" },

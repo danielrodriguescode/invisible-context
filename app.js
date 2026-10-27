@@ -382,7 +382,7 @@
     ${startHTML()}
 
     <section class="section" id="labs"><div class="wrap">
-      <h2>Three labs, one loop</h2>
+      <h2>Three labs</h2>
       <p class="lede">The Grand Challenge was split across three sub-groups. Each lab hands its output to the next, and the last one sends questions back to the first, so the work can be refined in further iterations.</p>
       ${labsLoop()}
     </div></section>
@@ -574,7 +574,7 @@
     </div></section>
 
     <section class="section"><div class="wrap">
-      <h2>Three labs, one loop</h2>
+      <h2>Three labs</h2>
       ${labsLoop()}
     </div></section>`;
   }
