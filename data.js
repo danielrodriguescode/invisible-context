@@ -101,19 +101,19 @@ window.LEAD = (function () {
         { text: "Work through the tabs in its coloured strip, left to right" } ] }
     ],
     profiles: [
-      { id: "clinician", name: "Clinician", hook: "You know these decisions from the ward.", go: [
+      { id: "clinician", name: "Clinician", go: [
         { scroll: "record", title: "The patient record", text: "The discharge that looks safe until you reveal what is missing." },
         { href: "#/archetype/4", title: "Patient Narrative Absence", text: "Preferences and caregivers that never reach the chart." },
         { href: "#/people", title: "Stakeholders", text: "Who carries the burden." } ] },
-      { id: "clinres", name: "Clinical researcher", hook: "You want the evidence and how it was framed.", go: [
+      { id: "clinres", name: "Clinical researcher", go: [
         { href: "#/challenge", title: "The Challenge", text: "The evidence in brief." },
         { href: "#/layers", title: "Five layers", text: "The diagnostic lens and its self-reinforcing cycle." },
         { href: "#/etl/gates", title: "Two gates", text: "When a gap becomes a European priority." } ] },
-      { id: "engineer", name: "Engineer or developer", hook: "You want to know what would have to be built.", go: [
+      { id: "engineer", name: "Engineer or developer", go: [
         { href: "#/bvdl/infrastructure", title: "Data infrastructure", text: "Sources, capture instruments, analysis." },
         { href: "#/bvdl/responses", title: "Visibility responses", text: "One design answer per layer and per archetype." },
         { href: "#/bvdl", title: "Design overview", text: "Semantic, technical and governance interoperability." } ] },
-      { id: "infres", name: "Informatics researcher", hook: "You want the open questions.", go: [
+      { id: "infres", name: "Informatics researcher", go: [
         { href: "#/bvdl/issues", title: "Issues and research", text: "Four study designs, with data and partners." },
         { href: "#/bvdl/odhness", title: "ODHness", text: "A proposed metric for visibility maturity." },
         { href: "#/map", title: "The Map", text: "The One Digital Health wheel, interactive." } ] }
