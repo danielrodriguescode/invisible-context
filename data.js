@@ -84,6 +84,44 @@ window.LEAD = (function () {
   };
 
   /* ------------------------------------------------------------------
+     Home: where to start, by time available or by background
+     (same paths as the PDF guide, MAP/guide/guide.html, page 3).
+     A step has href (a page), scroll (an id on the home page) or neither.
+     ------------------------------------------------------------------ */
+  const START = {
+    paths: [
+      { time: "2 min", title: "The big picture", steps: [
+        { scroll: "record", text: "Click each field of the patient record, or Show all" },
+        { scroll: "labs", text: "Scroll to Three labs, one loop" } ] },
+      { time: "10 min", title: "Follow one invisibility", steps: [
+        { href: "#/archetype/1", text: "Open one of the five archetypes" },
+        { text: "Use the Diagnose · Design · Translate buttons under its title" },
+        { text: "End with the shared problem statement, filled in" } ] },
+      { time: "30 min", title: "Go deep in one lab", labs: true, steps: [
+        { text: "Pick a lab" },
+        { text: "Work through the tabs in its coloured strip, left to right" } ] }
+    ],
+    profiles: [
+      { id: "clinician", name: "Clinician", hook: "You know these decisions from the ward.", go: [
+        { scroll: "record", title: "The patient record", text: "The discharge that looks safe until you reveal what is missing." },
+        { href: "#/archetype/4", title: "Patient Narrative Absence", text: "Preferences and caregivers that never reach the chart." },
+        { href: "#/people", title: "Stakeholders", text: "Who carries the burden." } ] },
+      { id: "clinres", name: "Clinical researcher", hook: "You want the evidence and how it was framed.", go: [
+        { href: "#/challenge", title: "The Challenge", text: "The evidence in brief." },
+        { href: "#/layers", title: "Five layers", text: "The diagnostic lens and its self-reinforcing cycle." },
+        { href: "#/etl/gates", title: "Two gates", text: "When a gap becomes a European priority." } ] },
+      { id: "engineer", name: "Engineer or developer", hook: "You want to know what would have to be built.", go: [
+        { href: "#/bvdl/infrastructure", title: "Data infrastructure", text: "Sources, capture instruments, analysis." },
+        { href: "#/bvdl/responses", title: "Visibility responses", text: "One design answer per layer and per archetype." },
+        { href: "#/bvdl", title: "Design overview", text: "Semantic, technical and governance interoperability." } ] },
+      { id: "infres", name: "Informatics researcher", hook: "You want the open questions.", go: [
+        { href: "#/bvdl/issues", title: "Issues and research", text: "Four study designs, with data and partners." },
+        { href: "#/bvdl/odhness", title: "ODHness", text: "A proposed metric for visibility maturity." },
+        { href: "#/map", title: "The Map", text: "The One Digital Health wheel, interactive." } ] }
+    ]
+  };
+
+  /* ------------------------------------------------------------------
      The Grand Challenge (Foreword and Background)
      ------------------------------------------------------------------ */
   const CHALLENGE = {
@@ -277,6 +315,6 @@ window.LEAD = (function () {
     {"n": 73, "short": "COST Association", "text": "COST Association. Open Call for COST Actions — proposers’ guidelines [Internet]. Brussels: COST Association; [cited 2026 Oct 19].", "url": "https://www.cost.eu/funding/how-to-get-funding/open-call"}
   ];
 
-  return { META, LABS, CONNECTIONS, ACKNOWLEDGEMENTS, CHALLENGE, LEAD_PHASES,
+  return { META, LABS, CONNECTIONS, ACKNOWLEDGEMENTS, START, CHALLENGE, LEAD_PHASES,
            CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, GLOSSARY, REFERENCES };
 })();

@@ -477,6 +477,24 @@ table.cov .sub { display: block; font-weight: 400; font-size: .75rem; color: var
 .statement-key span { display: inline-flex; align-items: center; gap: 6px; }
 .statement-key i { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
 
+/* ---------------------------------------------------------------- home: where to start */
+.record, #labs, #start { scroll-margin-top: 76px; }
+.paths { display: grid; gap: 14px; margin: 24px 0 36px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.path { padding: 20px 22px; }
+.path-time { display: block; font-family: var(--display); font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+.path h3 { margin-bottom: 10px; }
+.path ol { margin: 0; padding-left: 20px; color: var(--ink-2); }
+.path li { margin-bottom: 8px; font-size: .95rem; }
+.path-labs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; line-height: inherit; color: inherit; text-decoration: underline; cursor: pointer; text-align: left; vertical-align: top; }
+.start-sub { font-size: 1.15rem; margin-bottom: 14px; }
+#start .tabs { margin-bottom: 16px; }
+.profile-hook { font-family: var(--display); font-style: italic; font-size: 1.12rem; color: var(--ink-2); margin-bottom: 14px; }
+.profile-go { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.go { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; text-decoration: none; text-align: left; cursor: pointer; font: inherit; color: inherit; transition: transform .2s ease, border-color .2s ease; }
+.go:hover { transform: translateY(-2px); border-color: var(--ink-2); }
+.go > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+
 /* ---------------------------------------------------------------- challenge */
 .examples { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
 .example { text-decoration: none; padding: 18px 20px; border-left: 4px solid; display: flex; flex-direction: column; gap: 10px; }

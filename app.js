@@ -347,6 +347,8 @@
       </div>
     </div></section>
 
+    ${startHTML()}
+
     <section class="section" id="labs"><div class="wrap">
       <span class="eyebrow">How the cohort worked</span>
       <h2>Three labs, one loop</h2>
@@ -391,6 +393,40 @@
     </div></section>`;
   }
 
+  // Where to start: reading paths by time, and starting points by background
+  const startState = { profile: "clinician" };
+  const startStep = (x, cls = "") => x.href ? `<a class="${cls}" href="${x.href}">${esc(x.text)}</a>`
+    : x.scroll ? `<button class="link-btn ${cls}" data-scroll="${x.scroll}">${esc(x.text)}</button>` : esc(x.text);
+  function startHTML() {
+    const S = D.START;
+    return `<section class="section" id="start"><div class="wrap">
+      <span class="eyebrow">Where to start</span>
+      <h2>Pick your time, or your background</h2>
+      <p class="lede">You do not need to read everything. Choose a path by the time you have.</p>
+      <div class="paths">
+        ${S.paths.map((p) => `<div class="card path"><span class="path-time">${esc(p.time)}</span><h3>${esc(p.title)}</h3>
+          <ol>${p.steps.map((x, i) => `<li>${startStep(x)}${p.labs && i === 0 ? `<span class="path-labs">${D.LABS.map((l) => labTag(l.id)).join("")}</span>` : ""}</li>`).join("")}</ol>
+        </div>`).join("")}
+      </div>
+      <h3 class="start-sub">Or start from your background</h3>
+      <div class="tabs" role="tablist" aria-label="Your background">${S.profiles.map((p) => `<button role="tab" data-profile="${p.id}" aria-selected="${p.id === startState.profile}">${esc(p.name)}</button>`).join("")}</div>
+      <div id="profilePanel" role="tabpanel" aria-live="polite"></div>
+    </div></section>`;
+  }
+  function bindStart() {
+    const render = () => {
+      const p = D.START.profiles.find((x) => x.id === startState.profile);
+      $$("[data-profile]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.profile === p.id)));
+      $("#profilePanel").innerHTML = `<p class="profile-hook">${esc(p.hook)}</p>
+        <div class="profile-go">${p.go.map((g, i) => {
+          const inner = `<span class="ph-n">${i + 1}</span><span><strong>${esc(g.title)} →</strong><span class="small muted">${esc(g.text)}</span></span>`;
+          return g.href ? `<a class="card go" href="${g.href}">${inner}</a>` : `<button class="card go" data-scroll="${g.scroll}">${inner}</button>`;
+        }).join("")}</div>`;
+    };
+    $$("[data-profile]").forEach((b) => b.addEventListener("click", () => { startState.profile = b.dataset.profile; render(); }));
+    render();
+  }
+
   // IFAL → BVDL → ETL → back to IFAL
   function labsLoop() {
     const card = (l) => `<a class="card lab-card lab-${l.id}" href="${l.route}">
@@ -427,7 +463,11 @@
   }
 
   function bindHome() {
-    $("[data-scroll]").addEventListener("click", (e) => $("#" + e.currentTarget.dataset.scroll).scrollIntoView({ behavior: "smooth" }));
+    $(".view-enter").addEventListener("click", (e) => {
+      const s = e.target.closest("[data-scroll]");
+      if (s) $("#" + s.dataset.scroll).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    bindStart();
     const total = D.STORY.rows.length;
     const update = () => {
       const n = $$(".rrow.open").length;
