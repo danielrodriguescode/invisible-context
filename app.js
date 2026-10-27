@@ -1568,7 +1568,6 @@
     <div class="wrap" style="padding-bottom:56px">
       <div class="prose">
         <p class="lede">${"This site presents The Grand Challenge, the shared work of the EFMI LEAD cohort: an exploration, within One Digital Health, of the hidden determinants that remain unseen, unshared or unusable in BMHI systems. It is an educational companion to the cohort's document, written so that engineers and clinicians, practitioners and academics can follow it."}</p>
-        <p>${esc(D.META.version)}. The document is a work in progress and will be updated; this site follows it. Feedback is welcome.</p>
       </div>
       <h2 style="margin-top:32px">The cohort</h2>
       <div class="labs">

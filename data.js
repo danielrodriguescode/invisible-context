@@ -13,7 +13,6 @@ window.LEAD = (function () {
     subtitle: "Tracing the unseen layers of health ecosystems",
     challenge: "Invisible Context",
     cohort: "EFMI LEAD cohort · yEFMI",
-    version: "The Grand Challenge, draft of 21 October 2026",
     question:
       "When health decisions fail, how much of the relevant context was never digitally or cognitively visible in the first place?"
   };
