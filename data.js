@@ -129,8 +129,8 @@ window.LEAD = (function () {
         text: "EFMI establishes the LEAD cohort at its Special Topic Conference: young professionals in Biomedical and Health Informatics from several European countries, learning together in a cohort with peers and experts." },
       { when: "May 2026", where: "Genova, Italy",
         text: "At the annual EFMI conference (MIE 2026) the cohort receives its Grand Challenge: design a way to detect, structure, integrate and act on health-relevant information that remains invisible to health systems, within One Digital Health." },
-      { when: "October 2026", where: "Shared draft",
-        text: "The three sub-groups assemble their outputs into one document, The Grand Challenge. It is a work in progress and will be updated." }
+      { when: "October 2026", where: "Shared document",
+        text: "The three sub-groups assemble their outputs into one document, The Grand Challenge." }
     ],
     examples: [
       { text: "A patient is judged medically fit for discharge while their housing instability remains unrecorded.", a: 1 },
