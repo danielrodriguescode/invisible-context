@@ -37,6 +37,8 @@ python3 -m http.server 8080 --directory MAP/website
 
 ## Publish at its own URL
 - **Vercel** (configured via `vercel.json`): `vercel --prod` from this folder, or import the GitHub repo at https://vercel.com/new (no build command, output directory = root).
+Scripts and styles are served with `max-age=0, must-revalidate`, so a new deploy shows on the next visit. The `?v=` numbers in `index.html` only need changing if that caching rule is ever relaxed again.
+
 The site uses hash routes (`#/map`, `#/archetype/3`…), so it works on any static host without server configuration.
 
 - **Netlify**: drag the `website` folder onto https://app.netlify.com/drop, then set a custom domain.
