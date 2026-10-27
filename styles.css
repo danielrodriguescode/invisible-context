@@ -681,6 +681,9 @@ table.opp tr:focus-visible th { outline: 2px solid var(--accent); }
 .pillars li { padding: 16px; display: flex; flex-direction: column; gap: 10px; border-top: 4px solid var(--etl); font-weight: 500; }
 
 /* ---------------------------------------------------------------- glossary and about */
+.g-jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.g-group { scroll-margin-top: 76px; margin-bottom: 36px; }
+.g-group h2 { font-size: 1.5rem; margin-bottom: 14px; }
 .glossary { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); margin: 0; }
 .g-item { padding: 16px 18px; }
 .g-item dt { font-weight: 700; margin-bottom: 4px; }

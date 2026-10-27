@@ -235,9 +235,37 @@ window.LEAD = (function () {
     GDPR: "The EU General Data Protection Regulation (2016/679), which governs the processing of personal data.",
     "COST Action": "A four-year European research network funded by COST. It pays for networking (meetings, training schools, short research visits), not for research itself.",
     "Erasmus+": "The EU programme for education, training, youth and sport. Its Cooperation Partnerships fund organisations from several countries to develop and share educational practice.",
-    "federated learning": "A way to train a model across several data holders without moving the data: each site trains locally and only model updates are shared.",
-    LEAD: "EducationaL EFMI Assembly Designed for BMHI: a cohort of young BMHI professionals set up by yEFMI as a cybernetic learning framework for future leaders."
+    "federated learning": "A way to train a model across several data holders without moving the data. Each site trains locally and only model updates are shared.",
+    LEAD: "EducationaL EFMI Assembly Designed for BMHI: a cohort of young BMHI professionals set up by yEFMI as a cybernetic learning framework for future leaders.",
+    IFAL: "Invisible Failure Analysis Lab: LEAD sub-group 1, which diagnoses which health context stays invisible, to whom and why.",
+    BVDL: "BMHI Visibility Design Lab: LEAD sub-group 2, which designs how health informatics could make that context visible.",
+    ETL: "European Translation Lab: LEAD sub-group 3, which makes the case for European action and maps how to fund it.",
+    EFMI: "European Federation for Medical Informatics: the umbrella organisation of national health-informatics societies in Europe.",
+    yEFMI: "Young EFMI Workgroup: EFMI's working group for early-career health-informatics professionals, which set up LEAD.",
+    MIE: "Medical Informatics Europe: EFMI's annual conference. MIE 2026 was held in Genova, Italy.",
+    EFSA: "European Food Safety Authority: the EU agency that assesses risks in the food chain, including diseases passed from animals to people.",
+    ECDC: "European Centre for Disease Prevention and Control: the EU agency that monitors and assesses infectious-disease threats.",
+    "MyHealth@EU": "The EU service that lets patient summaries and e-prescriptions be exchanged between member states for care abroad.",
+    "HealthData@EU": "The EU infrastructure, set up under the EHDS, for accessing health data for research and policy across member states.",
+    WHO: "World Health Organization: the United Nations agency for international public health.",
+    UN: "United Nations: the international organisation whose 2030 Agenda sets the Sustainable Development Goals.",
+    EU: "European Union: the political and economic union of 27 European member states.",
+    AI: "Artificial Intelligence: computer systems that recognise patterns, make predictions or generate text.",
+    HL7: "Health Level Seven International: the organisation that develops health data-exchange standards, including FHIR.",
+    IoT: "Internet of Things: everyday devices and sensors connected to the internet that send data automatically.",
+    OAuth: "An open standard that lets one system access another on a user's behalf without sharing their password.",
+    RESTful: "A common style of web API in which data are requested and sent through standard web addresses.",
+    "SMART Guidelines": "WHO's approach to turning guidelines into digital, machine-readable formats. SMART stands for Standards-based, Machine-readable, Adaptive, Requirements-based and Testable.",
+    IS: "Information System: software that collects, stores and provides data for an organisation, such as a hospital or a social-security agency."
   };
+
+  // Topic groups for the Glossary page (every GLOSSARY term appears once)
+  const GLOSSARY_GROUPS = [
+    { name: "The cohort", terms: ["LEAD", "IFAL", "BVDL", "ETL", "EFMI", "yEFMI", "MIE"] },
+    { name: "Concepts", terms: ["BMHI", "ODH", "One Health", "ODHness", "SDOH", "digital determinants", "EHR", "PROM", "PREM"] },
+    { name: "Standards and technology", terms: ["FAIR", "HL7", "FHIR", "SNOMED CT", "LOINC", "API", "RESTful", "OAuth", "IoT", "IS", "AI", "NLP", "LLM", "federated learning", "SMART Guidelines"] },
+    { name: "European and international bodies and rules", terms: ["EU", "UN", "WHO", "EFSA", "ECDC", "EHDS", "MyHealth@EU", "HealthData@EU", "AI Act", "GDPR", "COST Action", "Erasmus+"] }
+  ];
 
   const REFERENCES = [
     {"n": 1, "short": "Alizadeh et al., 2025", "text": "Alizadeh M, Azizi N, Mahdavi S, Baghlani F. Unveiling the shadows: obstacles, consequences, and challenges of information opacity in healthcare systems. Philos Ethics Humanit Med. 2025;20:6.", "url": "https://doi.org/10.1186/s13010-025-00170-6"},
@@ -316,5 +344,5 @@ window.LEAD = (function () {
   ];
 
   return { META, LABS, CONNECTIONS, ACKNOWLEDGEMENTS, START, CHALLENGE, LEAD_PHASES,
-           CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, GLOSSARY, REFERENCES };
+           CORE, LEARN, KEYS, PERSPECTIVES, DIMENSIONS, TECH_RING, GLOSSARY, GLOSSARY_GROUPS, REFERENCES };
 })();
