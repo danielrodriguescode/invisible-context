@@ -224,7 +224,6 @@
       const [x, y] = pt(a.wheel.angle, R.tech);
       s += `<g class="marker" data-n="${a.n}" transform="translate(${f(x)} ${f(y)})" tabindex="${ti}" role="button" aria-label="Archetype ${a.n}: ${esc(a.name)}">`;
       s += `<circle class="glow" r="26" fill="${a.color}" filter="url(#${uid}-glow)"/>`;
-      if (a.spillover.length) s += `<circle class="spill" r="34" stroke="${a.color}"/>`;
       s += `<circle class="halo" r="30" stroke="${a.color}"/>`;
       s += `<circle class="m" r="22" fill="${a.color}"/>`;
       s += `<text text-anchor="middle" dy="7.5">${a.n}</text>`;

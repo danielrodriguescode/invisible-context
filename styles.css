@@ -257,7 +257,6 @@ button.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); bor
 .wheel .marker text { fill: #fff; font-weight: 800; font-size: 21px; pointer-events: none; }
 .wheel .marker .glow { opacity: 0; transition: opacity .3s ease; }
 .wheel .marker .halo { fill: none; stroke-width: 2.5; opacity: 0; }
-.wheel .marker .spill { fill: none; stroke-width: 1.8; stroke-dasharray: 3 4; }
 .wheel:not(.mini) .marker:hover .m { transform: scale(1.12); }
 .wheel .marker.sel .glow { opacity: .7; }
 .wheel .marker.sel .halo { opacity: 1; animation: pulse 1.8s ease-in-out infinite; }
