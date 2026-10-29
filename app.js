@@ -1577,12 +1577,14 @@
   ];
 
   // Pages visited in this session, so Back can name the previous page and
-  // return to where the reader was on it: [{ hash, title, y }]
+  // return to where the reader was on it: [{ hash, title, y }].
+  // Arriving on Home (other than by going back) starts a new trail.
   const trail = [];
   function track(hash) {
     const top = trail[trail.length - 1], prev = trail[trail.length - 2];
     if (top && top.hash === hash) return window.scrollY;          // re-render (e.g. theme toggle)
     if (prev && prev.hash === hash) { trail.pop(); return prev.y; } // went back
+    if (hash === "#/") { trail.length = 0; trail.push({ hash, title: "", y: 0 }); return 0; }
     if (top) top.y = window.scrollY;
     trail.push({ hash, title: "", y: 0 });
     return 0;
@@ -1678,7 +1680,11 @@
       if (location.hash !== "#/about") { location.hash = "#/about"; setTimeout(go, 80); } else go();
     }
   });
-  $("#backBtn").addEventListener("click", () => history.back());
+  // Back follows the trail rather than browser history, so it always goes where its label says
+  $("#backBtn").addEventListener("click", () => {
+    const prev = trail[trail.length - 2];
+    if (prev) location.hash = prev.hash;
+  });
 
   // tooltips for text added by renders and by panels that redraw (tabs, inspectors);
   // the pass's own changes trigger one more call, which finds nothing left to do
